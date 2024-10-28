@@ -1,7 +1,6 @@
-require('dotenv').config();
 const { Pool } = require('pg');
 
-class CustomerService {
+class DBConnection {
     constructor() {
         this.pool = new Pool({
             host: "csce-315-db.engr.tamu.edu",
@@ -11,6 +10,4 @@ class CustomerService {
             port: 5432,
           });
     }
-
-    
 }
