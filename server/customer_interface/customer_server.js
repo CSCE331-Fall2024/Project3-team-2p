@@ -7,8 +7,14 @@ const customer_service = new CustomerService();
 router.post('/place-order', async (req, res) => {
     const { order_type, entrees, sides } = req.body;
 
-    if (!order_type || !Array.isArray(entrees) || !Array.isArray(sides)) {
-        return res.status(400).json({ error: 'Invalid request body' });
+    if (![0, 1, 2].includes(order_type)) {
+        return res.status(400).json({ error: 'Invalid order type. Must be 0, 1, or 2.' });
+    }
+    if (!Array.isArray(entrees) || entrees.length === 0) {
+        return res.status(400).json({ error: 'Entrees must be a non-empty array.' });
+    }
+    if (!Array.isArray(sides) || sides.length === 0) {
+        return res.status(400).json({ error: 'Sides must be a non-empty array.' });
     }
 
     try {
