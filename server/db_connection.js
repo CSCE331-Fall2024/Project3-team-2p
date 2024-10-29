@@ -1,4 +1,5 @@
-const { Pool } = require('pg');
+import pkg from 'pg';
+const { Pool } = pkg;
 
 class DBConnection {
     constructor() {
@@ -11,3 +12,5 @@ class DBConnection {
           });
     }
 }
+
+export default DBConnection;
