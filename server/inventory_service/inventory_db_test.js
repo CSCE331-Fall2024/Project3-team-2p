@@ -81,6 +81,25 @@ async function testUpdateEmployees() {
     }
 }
 
+async function testUpdateIngredients() {
+    const inventoryService = new InventoryService();
+
+    const testIngredients = [
+        { id: 18, name: 'Beef', stock: 1119802, threshold: 1120000, price: 0.08, unit: 'g' },
+        { id: 24, name: 'Random Ingredient', stock: 5000, threshold: 6000, price: 1.25, unit: 'ml' }
+    ];
+
+    try {
+        console.log("Testing ingredient updates and inserts...");
+        await inventoryService.updateIngredients(testIngredients);
+        console.log("Test successful: Ingredient records updated/inserted as expected.");
+    } catch (error) {
+        console.error("Test failed:", error);
+    } finally {
+        await inventoryService.pool.end();
+    }
+}
+
 // testGetAllIngredients();
 // testGetAllMenuItems();
 // testGetEmployees();
@@ -89,4 +108,7 @@ async function testUpdateEmployees() {
 // testGetAllMenuItems();
 
 // testUpdateEmployees();
-testGetEmployees();
+// testGetEmployees();
+
+// testUpdateIngredients();
+// testGetAllIngredients();

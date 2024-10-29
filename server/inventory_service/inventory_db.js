@@ -120,6 +120,21 @@ class InventoryService {
     }
 
     /**
+     * Updates the ingredients table with new or edited ingredients
+     * @param {Array} ingredients - Array of ingredient objects
+     */
+    async updateIngredients(ingredients) {
+        console.log("Sending ingredients to backend...");
+
+        try {
+            await this.#updateIngredientRecords(ingredients);
+            console.log("Ingredients sent to backend successfully.");
+        } catch (error) {
+            console.error("Error sending ingredients to backend:", error);
+        }
+    }
+
+    /**
      * Updates the menu items table with new or edited items
      * @param {Array} menuItems - Array of menu item objects
      */
@@ -196,6 +211,40 @@ class InventoryService {
             }
         } catch (error) {
             console.error("Error updating employee records:", error);
+            throw error;
+        }
+    }
+
+    /**
+     * Updates the ingredients table with new or edited ingredient records
+     * @param {Array} ingredients - Array of ingredient objects
+     */
+    async #updateIngredientRecords(ingredients) {
+        const query = `
+            INSERT INTO ingredients (id, name, stock, threshold, price, unit)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            ON CONFLICT (id)
+            DO UPDATE SET 
+                name = EXCLUDED.name,
+                stock = EXCLUDED.stock,
+                threshold = EXCLUDED.threshold,
+                price = EXCLUDED.price,
+                unit = EXCLUDED.unit;
+        `;
+
+        try {
+            for (const ingredient of ingredients) {
+                await this.pool.query(query, [
+                    ingredient.id,
+                    ingredient.name,
+                    ingredient.stock,
+                    ingredient.threshold,
+                    ingredient.price,
+                    ingredient.unit
+                ]);
+            }
+        } catch (error) {
+            console.error("Error updating ingredient records:", error);
             throw error;
         }
     }
