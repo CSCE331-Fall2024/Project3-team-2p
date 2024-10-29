@@ -4,6 +4,11 @@ import CustomerService from './customer_db.js'
 const router = express.Router();
 const customer_service = new CustomerService();
 
+/**
+ * @param {number} order_type - Type of the order (0, 1, or 2)
+ * @param {string[]} entrees - Array of entree items (e.g., ['Broccoli Beef', 'Honey Walnut Shrimp', Mushroom Chicken])
+ * @param {string[]} sides - Array of side items (eg., ['Chow Mein'])
+ */
 router.post('/place-order', async (req, res) => {
     const { order_type, entrees, sides } = req.body;
 
