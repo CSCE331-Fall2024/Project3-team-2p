@@ -1,43 +1,86 @@
 <template>
   <div class="app-container">
-    <div v-if="!isAddingItems" class="menu-section">
-      <h2>Suggested Orders</h2>
-      <div class="order-items">
-      //populate with current dummy data for Suggested 
-        <div class="order-item" v-for="(item, index) in suggestedItems" :key="item.name + index" @click="addSuggestedOrder(item)">
-          <img :src="item.image" alt="food" />
-          <p>{{item.name}} - {{item.price}}</p>
-          <p>{{item.description}}</p>
+    <!-- Left side: Main view or Entree selection view -->
+    <div class="left-side">
+      <div v-if="!isSelectingEntrees">
+        <!-- Suggested Orders section -->
+        <h2>Suggested Orders</h2>
+        <div class="suggested-orders">
+          <div
+            v-for="order in suggestedOrders" 
+            :key="order.name"
+            class="suggested-order"
+            @click="addOrder(order)"
+          >
+            <div class="details">
+              <h3>{{ order.name }} - {{ order.price }}</h3>
+              <p>{{ order.description }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Build Your Own section -->
+        <h2>Build Your Own</h2>
+        <div class="build-your-own">
+          <div
+            v-for="item in buildItems" 
+            :key="item.name"
+            class="build-item"
+            @click="selectBuildYourOwn(item)"
+          >
+            <div class="details">
+              <h3>{{ item.name }} - {{ item.price }}</h3>
+            </div>
+          </div>
         </div>
       </div>
-      //populate with current dummy data for BYOB
-      <h2>Build Your Own</h2>
-      <div class="order-items">
-        <div class="order-item" v-for="(item, index) in buildYourOwnItems" :key="item.name + index" @click="showMealOptions(item)">
-          <img :src="item.image" alt="food" />
-          <p>{{ item.name }} - {{ item.price }}</p>
+      <div v-else-if="isSelectingSides" class="side-selection">
+        <button @click="goBackToEntreeSelection" class="back-button">⬅ Back</button>
+        <h2>Select Sides for {{ selectedBuildItem.name }}</h2>
+        <div class="sides">
+          <div
+            v-for="side in sides" 
+            :key="side.id"
+            class="side-item"
+            @click="addSideToOrder(side)"
+          >
+            <div class="details">
+              <h3>{{ side.name }}</h3>
+              <p>Price: ${{ side.price }}</p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    //Show meal options, only if isAddingItems is true tho
-    <div v-if="isAddingItems" class="meal-options-section">
-      <button @click="goBack">Back</button>
-      <h2>Customize Your {{ selectedItemType }}</h2>
-      <div class="meal-options">
-        <div class="meal-option" v-for="(option, index) in mealOptions" :key="index" @click="addItemToOrder(option)">
-          <img :src="option.image" alt="meal option" />
-          <p>{{ option.name }}</p>
+      <!-- Entree selection view -->
+      <div v-else class="entree-selection">
+        <button @click="goBack" class="back-button">⬅ Back</button>
+        <h2>Select Entrees for {{ selectedBuildItem.name }}</h2>
+        <div class="entrees">
+          <div
+            v-for="entree in entrees" 
+            :key="entree.id"
+            class="entree-item"
+            @click="addEntreeToOrder(entree)"
+          >
+            <div class="details">
+              <h3>{{ entree.name }}</h3>
+              <p>Price: ${{ entree.price }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
+    
+
+    <!-- Right side: Order Summary section -->
     <div class="order-summary">
       <h2>Order Summary</h2>
-      <div class="order-item-summary" v-for="(item, index) in order" :key="item.name + index">
-        <p>{{ item.name }}</p>
-        <p>{{ item.description }}</p>
-        <p>{{ item.price }}</p>
-        <button class="remove-btn" @click="removeItem(index)">✖</button>
+      <div v-for="(order, index) in orders" :key="index" class="order-item">
+        <h4>{{ order.name }}</h4>
+        <p>{{ order.description }}</p>
+        <span>{{ order.price }}</span>
+        <button @click="removeOrder(index)">✖</button>
       </div>
       <button class="place-order">Place Order</button>
     </div>
@@ -45,116 +88,201 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
-  name: "CustomerView",
   data() {
     return {
-      //needed variables
-      order: [],
-      isAddingItems: false,
-      selectedItemType: '',
-      //Current dummy meal options
-      mealOptions: [
-        { name: 'Orange Chicken', image: require('../assets/image 8.png') },
-        { name: 'Beef Broccoli', image: require('../assets/image 9.png') },
-        { name: 'Chow Mein', image: require('../assets/image.png') },
+      isSelectingSides: false,
+      isSelectingEntrees: false,
+      selectedBuildItem: null,
+      orders: [],
+      entreeList: [], //List of entrees for API call
+      sideList: [], //list of sides for API call
+      orderType: null, //order type for API call
+      suggestedOrders: [
+        { name: "Bigger Plate", price: "$14.99", description: "Broccoli Beef, Orange Chicken, White Rice" },
+        { name: "Bigger Plate", price: "$14.99", description: "Broccoli Beef, Orange Chicken, Chow Mein" },
+        { name: "Bowl", price: "$9.99", description: "Orange Chicken, Rice" },
       ],
-      //Dummy data for suggested orders. I will replace this with the dynamic soon
-      suggestedItems: [
-        { name: 'Bigger Plate', price: '$14.99', description: 'Broccoli Beef, Orange Chicken, White Rice', image: require('../assets/image 8.png') },
-        { name: 'Bigger Plate', price: '$14.99', description: 'Broccoli Beef, Orange Chicken, Chow Mein', image: require('../assets/image.png') },
-        { name: 'Bowl', price: '$9.99', description: 'Orange Chicken, Rice', image: require('../assets/image 9.png') },
+      buildItems: [
+        { name: "Bowl", price: "$8.99", type: 0 },
+        { name: "Plate", price: "$10.99", type: 1 },
+        { name: "Bigger Plate", price: "$11.99", type: 2 },
       ],
-      //Build your own bowl options
-      buildYourOwnItems: [
-        { name: 'Bowl', price: '$8.99', image: require('../assets/image 9.png') },
-        { name: 'Plate', price: '$10.99', image: require('../assets/image.png') },
-        { name: 'Bigger Plate', price: '$11.99', image: require('../assets/image 8.png') },
-      ]
+      entrees: [],
+      sides: []
     };
   },
+  created() {
+    this.fetchEntrees();
+    this.fetchSides();
+  },
   methods: {
-    addSuggestedOrder(item) {
-      this.order.push(item);
+    async fetchEntrees() {
+    try {
+      const response = await axios.get('/api/entrees');
+      this.entrees = response.data;
+      console.log('Entrees fetched:', this.entrees);
+    } catch (error) {
+      console.error('Error fetching entrees:', error);
+    }
+  },
+    async fetchSides() {
+      try {
+        const response = await axios.get('/api/sides');
+        this.sides = response.data;
+      } catch (error) {
+        console.error('Error fetching sides:', error);
+      }
     },
-    showMealOptions(item) {
-      this.selectedItemType = item.name;
-      this.isAddingItems = true;
+    addOrder(order) {
+      this.orders.push(order);
     },
-    addItemToOrder(option) {
-      const customizedItem = { ...option, name: this.selectedItemType };
-      this.order.push(customizedItem);
-      this.isAddingItems = false;
+    removeOrder(index) {
+      this.orders.splice(index, 1);
+    },
+    selectBuildYourOwn(item) {
+      this.isSelectingEntrees = true;
+      this.selectedBuildItem = { ...item, description: "", entrees: [] };
+      this.orderType = item.type
+
+    },
+    addEntreeToOrder(entree) {
+      this.entreeList.push(entree.name);
+      this.selectedBuildItem.description = this.selectedBuildItem.entrees.join(", ");
+      if (!this.orders.includes(this.selectedBuildItem)) {
+        this.orders.push(this.selectedBuildItem);
+      }
+      // Move to sides view based on the build item type
+      const entreeCount = this.selectedBuildItem.name === 'Bowl' ? 1 : this.selectedBuildItem.name === 'Plate' ? 2 : 3;
+      if (this.selectedBuildItem.entrees.length >= entreeCount) {
+        this.goToSidesView();
+      }
+    },
+    addSideToOrder(side) {
+      this.sideList.push(side.name);
     },
     goBack() {
-      this.isAddingItems = false;
+      this.isSelectingEntrees = false;
+      this.selectedBuildItem = null;
     },
-    //this removes the order in progress
-    removeItem(index) {
-      this.order.splice(index, 1);
+    goToSidesView() {
+      this.isSelectingEntrees = false;
+      this.isSelectingSides = true;
+    },
+    goBackToEntreeSelection() {
+      this.isSelectingEntrees = true;
+      this.isSelectingSides = false;
     }
-  }
+  },
 };
 </script>
 
 <style scoped>
+/* Main container layout */
 .app-container {
   display: flex;
-  justify-content: space-between;
+  gap: 20px;
   padding: 20px;
 }
 
-.menu-section, .meal-options-section {
-  width: 70%;
+/* Left side for main or entree selection views */
+.left-side {
+  flex: 2;
 }
 
-.order-items, .meal-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.order-item, .order-item-summary, .meal-option {
-  background-color: #444;
+/* Right side for order summary */
+.order-summary {
+  flex: 1;
+  padding: 20px;
+  background-color: #333;
   color: #fff;
-  padding: 10px;
+  border-radius: 8px;
+}
+
+/* Suggested Orders and Build Your Own sections */
+.suggested-orders,
+.build-your-own {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.suggested-order,
+.build-item,
+.entree-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #333;
+  color: #fff;
+  padding: 15px;
   border-radius: 8px;
   cursor: pointer;
-  width: 30%;
+  transition: transform 0.2s;
+}
+
+.suggested-order:hover,
+.build-item:hover,
+.entree-item:hover {
+  transform: scale(1.05);
+}
+
+.details {
   text-align: center;
-  position: relative;
 }
 
-.order-item img, .meal-option img {
-  width: 100px;
-  height: 80px;
+.order-summary h2 {
+  margin-top: 0;
 }
 
-.order-summary {
-  width: 25%;
-  background-color: #2d2d2d;
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #444;
+  margin-bottom: 10px;
   padding: 10px;
-  border-radius: 8px;
-  color: #fff;
+  border-radius: 5px;
 }
 
 .place-order {
-  background-color: #d32f2f;
-  color: #fff;
   width: 100%;
   padding: 10px;
-  margin-top: 20px;
-  border: none;
-  cursor: pointer;
-}
-
-.remove-btn {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: none;
+  background-color: #ff0000;
   color: #fff;
   border: none;
+  border-radius: 5px;
+  font-size: 1.2rem;
   cursor: pointer;
+  margin-top: 10px;
+}
+
+/* Entree selection styling */
+.entree-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  align-items: center;
+}
+
+.entrees {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.back-button {
+  align-self: flex-start;
+  padding: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
 }
 </style>

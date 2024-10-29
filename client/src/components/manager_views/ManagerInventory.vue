@@ -7,17 +7,39 @@
                         <th>Item</th>
                         <th>Stock</th>
                         <th>Current Threshold</th>
-                        <th>Moving Avg. Change</th>
-                        <th>Suggestion</th>
+                        <th>Price</th>
+                        <th>Unit</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(item, index) in inventoryData" :key="index">
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.stock }}</td>
-                        <td>{{ item.threshold }}</td>
-                        <td>{{ item.change }}%</td>
-                        <td>{{ item.suggestion }}</td>
+                    <tr v-for="(item, index) in inventoryData" :key="index" :class="{ selected: item.selected }">
+                        <td v-if="item.selected">
+                            <input v-model="item.name" class="editable-input" />
+                        </td>
+                        <td v-else>{{ item.name }}</td>
+
+                        <td v-if="item.selected">
+                            <input v-model.number="item.stock" class="editable-input" type="number" />
+                        </td>
+                        <td v-else>{{ item.stock }}</td>
+
+                        <td v-if="item.selected">
+                            <input v-model.number="item.threshold" class="editable-input" type="number" />
+                        </td>
+                        <td v-else>{{ item.threshold }}</td>
+
+                        <td v-if="item.selected">
+                            <input v-model.number="item.price" class="editable-input" type="number" />
+                        </td>
+                        <td v-else>{{ item.price }}</td>
+                        
+                        <td v-if="item.selected">
+                            <input v-model="item.unit" class="editable-input" />
+                        </td>
+                        <td v-else>{{ item.unit }}</td>
+
+                        <td><button @click="editIngredient(index)" class="action-button">{{ item.selected ? "Save" : "Select" }}</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -32,53 +54,59 @@
 
 <script>
 export default {
-    data() {
+    data(){
         //TODO: replace with data from api call
-        return {
+        return{
             inventoryData: [
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, suggestion: "Increase the threshold to 12" },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, suggestion: "Everything looks good" },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
             ],
         };
     },
     methods: {
-        editThresholds() {
-            console.log("Edit thresholds function called");
-            //TODO: replace with api call 
+        editIngredient(index){
+            this.inventoryData[index].selected = !this.inventoryData[index].selected;
+            if(this.inventoryData[index].selected){
+                //TODO: API call to send to backend
+            }
         },
-        orderIngredients() {
+        addIngredient(){
+            this.inventoryData.push({name: "", stock: 0, threshold: 0, change: 0, selected: true});
+        },
+        orderIngredients(){
             console.log("Order ingredients function called");
-            //TODO: replace with api call 
+            //TODO Matthew: go through and record how many of each ingredient will be ordered.
+            //TODO: API call to update inventory 
         }
     }
 };
@@ -109,6 +137,9 @@ export default {
 .inventory-table td {
     padding: 10px;
     border: 1px solid #555;
+    max-width: 0px;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .table-container {
@@ -136,5 +167,14 @@ export default {
 
 .action-button:hover {
     background-color: #f1f1f1;
+}
+
+.selected {
+    background-color: #666;
+}
+
+.editable-input {
+    width: 100%;
+    box-sizing: border-box;
 }
 </style>
