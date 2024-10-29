@@ -7,7 +7,8 @@
                         <th>Item</th>
                         <th>Stock</th>
                         <th>Current Threshold</th>
-                        <th>Moving Avg. Change</th>
+                        <th>Price</th>
+                        <th>Unit</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -27,8 +28,18 @@
                             <input v-model.number="item.threshold" class="editable-input" type="number" />
                         </td>
                         <td v-else>{{ item.threshold }}</td>
-                        <td>{{ item.change }}%</td>
-                        <td><button @click="editIngredient(index)" class="action-button">{{item.selected ? "Save" : "Select"}}</button></td>
+
+                        <td v-if="item.selected">
+                            <input v-model.number="item.price" class="editable-input" type="number" />
+                        </td>
+                        <td v-else>{{ item.price }}</td>
+                        
+                        <td v-if="item.selected">
+                            <input v-model="item.unit" class="editable-input" />
+                        </td>
+                        <td v-else>{{ item.unit }}</td>
+
+                        <td><button @click="editIngredient(index)" class="action-button">{{ item.selected ? "Save" : "Select" }}</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -47,38 +58,38 @@ export default {
         //TODO: replace with data from api call
         return{
             inventoryData: [
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, change: 33.3, selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, change: -1.32, selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
+                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
+                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
             ],
         };
     },
