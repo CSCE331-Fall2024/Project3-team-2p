@@ -21,10 +21,10 @@
                     </tr>
                 </tbody>
             </table>
+            <button @click="addIngredient" class="action-button">Add Ingredient</button>
         </div>
 
         <div class="button-group">
-            <button @click="editThresholds" class="action-button">Edit Thresholds</button>
             <button @click="orderIngredients" class="action-button">Order Ingredients</button>
         </div>
     </div>
