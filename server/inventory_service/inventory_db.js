@@ -105,6 +105,21 @@ class InventoryService {
     }
 
     /**
+     * Updates the employees table with new or edited employees
+     * @param {Array} employees - Array of employee objects
+     */
+    async updateEmployees(employees) {
+        console.log("Sending employees to backend...");
+
+        try {
+            await this.#updateEmployeeRecords(employees);
+            console.log("Employees sent to backend successfully.");
+        } catch (error) {
+            console.error("Error sending employees to backend:", error);
+        }
+    }
+
+    /**
      * Updates the menu items table with new or edited items
      * @param {Array} menuItems - Array of menu item objects
      */
@@ -154,6 +169,33 @@ class InventoryService {
             }
         } catch (error) {
             console.error("Error updating ingredients menu items:", error);
+            throw error;
+        }
+    }
+
+    /**
+     * Updates the employees table with new or edited employee records
+     * @param {Array} employees - Array of employee objects
+     */
+    async #updateEmployeeRecords(employees) {
+        const query = `
+            INSERT INTO employees (id, username, pin, manager)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT (id)
+            DO UPDATE SET username = EXCLUDED.username, pin = EXCLUDED.pin, manager = EXCLUDED.manager;
+        `;
+
+        try {
+            for (const employee of employees) {
+                await this.pool.query(query, [
+                    employee.id,
+                    employee.username,
+                    employee.pin,
+                    employee.manager
+                ]);
+            }
+        } catch (error) {
+            console.error("Error updating employee records:", error);
             throw error;
         }
     }

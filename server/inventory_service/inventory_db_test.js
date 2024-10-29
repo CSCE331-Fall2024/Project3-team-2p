@@ -62,9 +62,31 @@ async function testSendMenuToBackend() {
     }
 }
 
+async function testUpdateEmployees() {
+    const inventoryService = new InventoryService();
+
+    const testEmployees = [
+        { id: 1002, username: "timtak", pin: 1337, manager: false }, 
+        { id: 2, username: "Random fella", pin: 1000, manager: false }
+    ];
+
+    try {
+        console.log("Testing employee updates and inserts...");
+        await inventoryService.updateEmployees(testEmployees);
+        console.log("Test successful: Employee records updated/inserted as expected.");
+    } catch (error) {
+        console.error("Test failed:", error);
+    } finally {
+        await inventoryService.pool.end();
+    }
+}
+
 // testGetAllIngredients();
 // testGetAllMenuItems();
 // testGetEmployees();
 
 // testSendMenuToBackend();
-testGetAllMenuItems();
+// testGetAllMenuItems();
+
+// testUpdateEmployees();
+testGetEmployees();
