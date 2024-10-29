@@ -45,6 +45,44 @@ class CustomerService {
     }
 
     /**
+     * 
+     * @returns Array of dictonaries of entrees, the keys are id, name, price, entree
+     */
+    async getEntrees() {
+        const query = `
+            SELECT *
+            FROM menuitems
+            WHERE entree = 1;
+        `
+        try {
+            const {rows: entrees} = await this.pool.query(query);
+            return entrees;
+        }
+        catch (error) {
+            console.error("error getting entrees", error);
+        }   
+    }
+
+    /**
+     * 
+     * @returns Array of dictionaries of sides, the keys are id, name, price, entree
+     */
+    async getSides() {
+        const query = `
+            SELECT *
+            FROM menuitems
+            WHERE entree = 0;
+        `
+        try {
+            const {rows: sides} = await this.pool.query(query);
+            return sides;
+        }
+        catch (error) {
+            console.error("error getting sides", error);
+        }  
+    }
+
+    /**
      * Closes database connection
      * @returns 
      */
@@ -92,7 +130,7 @@ class CustomerService {
 
             const insert_query = `
                 INSERT INTO menuitemsorders (id, menuitemkey, orderkey) 
-                VALUES ${rows.map((_, i) => `($${i * 3 + 1}, $${i * 3 + 2}, $${i * 3 + 3})`).join(", ")}
+                VALUES ${rows.map((_, i) => `($${i * 3 + 1}, $${i * 3 + 2}, $${i * 3 + 3})`).join(", ")};
             `;
 
             const params = rows.flatMap(row => {
@@ -139,10 +177,14 @@ class CustomerService {
     }
 }
 
+export default CustomerService;
+
 /*
-Example usage of this class:
+//Example usage of this class:
 
 const customer = new CustomerService();
 await customer.placeOrder(2, ["Broccoli Beef", "Honey Walnut Shrimp", "Mushroom Chicken"], ["Chow Mein"]);
+await customer.getEntrees();
+await customer.getSides();
 customer.close();
 */
