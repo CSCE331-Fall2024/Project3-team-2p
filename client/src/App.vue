@@ -1,10 +1,9 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
   <HelloWorld msg="Welcome to Your Vue.js App"/>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import HelloWorld from './components/managerView.vue' // If y'all need to test a view, replace this path with your path
 
 export default {
   name: 'App',
@@ -14,13 +13,16 @@ export default {
 }
 </script>
 
-<style>
-#app {
+<style> /*  This styling will be consistent throughout, probably won't change unless we want to change the font/etc which I am open to  */
+html, body, #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 </style>
