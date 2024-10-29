@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import HelloWorld from './components/managerView.vue' // If y'all need to test a view, replace this path with your path
+import HelloWorld from './components/customerView.vue' // If y'all need to test a view, replace this path with your path
 
 export default {
   name: 'App',
