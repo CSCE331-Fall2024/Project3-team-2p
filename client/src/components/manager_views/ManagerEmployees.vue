@@ -6,7 +6,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Username</th>
-                        <th>PIN Threshold</th>
+                        <th>PIN</th>
                         <th>Manager</th>
                         <th>Actions</th>
                     </tr>
