@@ -82,7 +82,7 @@
         <span>{{ order.price }}</span>
         <button @click="removeOrder(index)">✖</button>
       </div>
-      <button class="place-order">Place Order</button>
+      <button class="place-order" @click="placeOrder">Place Order</button>
     </div>
   </div>
 </template>
@@ -141,6 +141,9 @@ export default {
     },
     removeOrder(index) {
       this.orders.splice(index, 1);
+      this.selectedBuildItem = null;
+      this.isSelectingEntrees = false;
+      this.isSelectingSides = false;
     },
     selectBuildYourOwn(item) {
       this.isSelectingEntrees = true;
@@ -164,6 +167,7 @@ export default {
     addSideToOrder(side) {
       this.selectedBuildItem.sides.push(side.name)
       this.sideList.push(side.name);
+      this.selectedBuildItem.description = [...this.selectedBuildItem.entrees, ...this.selectedBuildItem.sides].join(", ");
     },
     goBack() {
       this.isSelectingEntrees = false;
@@ -176,7 +180,52 @@ export default {
     goBackToEntreeSelection() {
       this.isSelectingEntrees = true;
       this.isSelectingSides = false;
+    },
+    async placeOrder() {
+  const { orderType, entreeList, sideList } = this;
+
+  // Validate order details
+  if (![0, 1, 2].includes(orderType)) {
+      alert('Invalid order type. Please select a valid type.');
+      return;
     }
+    if (entreeList.length === 0) {
+      alert('Please add at least one entree.');
+      return;
+    }
+    if (sideList.length === 0) {
+      alert('Please add at least one side.');
+      return;
+    }
+
+    try {
+      // Send order data to the server
+      const response = await axios.post('/api/customers/place-order', {
+        order_type: orderType,
+        entrees: entreeList,
+        sides: sideList
+      });
+
+      // Handle successful order placement
+      alert(response.data.message);
+      this.resetOrder(); // Reset order summary if needed
+    } catch (error) {
+      console.error('Error placing order:', error);
+      alert('Failed to place order. Please try again.');
+    }
+  },
+  
+  // Reset order after placing (optional)
+  resetOrder() {
+    this.orders = [];
+    this.entreeList = [];
+    this.sideList = [];
+    this.orderType = null;
+    this.selectedBuildItem = null;
+    this.isSelectingEntrees = false;
+    this.isSelectingSides = false;
+  }
+
   },
 };
 </script>
