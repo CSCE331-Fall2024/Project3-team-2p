@@ -1,10 +1,13 @@
 import express from 'express';
 import path from 'path';
 import customerRoutes from './customer_interface/customer_server.js'
+import cors from 'cors'
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+
+app.use(cors({ origin: 'http://localhost:8080' }));
 app.use(express.json());
 app.use('/api/customers', customerRoutes);
 
