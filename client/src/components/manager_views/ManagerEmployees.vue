@@ -1,5 +1,8 @@
 <template>
     <div class="inventory-dashboard">
+        <router-link :to="{ name: 'ManagerHome' }">
+            <button>Go to Home</button>
+        </router-link>
         <div class="table-container">
             <table class="inventory-table">
                 <thead>
@@ -68,70 +71,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-.template {
-    width: 100%;
-    height: 100%;
-}
-
-.inventory-dashboard {
-    background-color: #cc3333;
-    padding: 20px;
-    text-align: center;
-    min-height: 100vh;
-}
-
-.inventory-table {
-    width: 100%;
-    margin: auto;
-    background-color: #333;
-    color: white;
-    border-collapse: collapse;
-}
-
-.inventory-table th,
-.inventory-table td {
-    padding: 10px;
-    border: 1px solid #555;
-    max-width: 0px;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-.table-container {
-    max-height: 75vh;
-    max-width: 60vw;
-    overflow-y: auto;
-    margin: auto;
-    background-color: #333;
-}
-
-.button-group {
-    margin-top: 20px;
-}
-
-.action-button {
-    background-color: white;
-    color: black;
-    padding: 10px 20px;
-    margin: 5px;
-    font-size: 16px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.action-button:hover {
-    background-color: #f1f1f1;
-}
-
-.selected {
-    background-color: #666;
-}
-
-.editable-input {
-    width: 100%;
-    box-sizing: border-box;
-}
-</style>

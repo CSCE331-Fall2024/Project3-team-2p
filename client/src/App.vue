@@ -1,20 +1,20 @@
 <template>
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app">
+    <router-view></router-view>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/customerView.vue' // If y'all need to test a view, replace this path with your path
-
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+  name: 'App'
+};
 </script>
 
-<style> /*  This styling will be consistent throughout, probably won't change unless we want to change the font/etc which I am open to  */
-html, body, #app {
+<style>
+/*  This styling will be consistent throughout, probably won't change unless we want to change the font/etc which I am open to  */
+html,
+body,
+#app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
