@@ -36,13 +36,14 @@
                             <input v-model.number="item.price" class="editable-input" type="number" />
                         </td>
                         <td v-else>{{ item.price }}</td>
-                        
+
                         <td v-if="item.selected">
                             <input v-model="item.unit" class="editable-input" />
                         </td>
                         <td v-else>{{ item.unit }}</td>
 
-                        <td><button @click="editIngredient(index)" class="action-button">{{ item.selected ? "Save" : "Select" }}</button></td>
+                        <td><button @click="editIngredient(index)" class="action-button">{{ item.selected ? "Save" :
+                                "Select" }}</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -56,57 +57,56 @@
 </template>
 
 <script>
+import axios from 'axios';
+axios.defaults.baseURL = 'http://localhost:3000';
 export default {
-    data(){
+    data() {
         //TODO: replace with data from api call
-        return{
-            inventoryData: [
+        return {
+            /*inventoryData: [
                 { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
                 { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-                { name: "Chicken", stock: 10, threshold: 9, price: 0.02, unit: "g", selected: false },
-                { name: "Noodles", stock: 12, threshold: 6, price: 0.02, unit: "g", selected: false },
-            ],
+            ],*/
+            inventoryData: [],
+            maxId: 0,
         };
+    }, 
+    created() {
+        this.fetchInventory();
     },
     methods: {
-        editIngredient(index){
-            this.inventoryData[index].selected = !this.inventoryData[index].selected;
-            if(this.inventoryData[index].selected){
-                //TODO: API call to send to backend
+        async fetchInventory() {
+            try {
+                const response = await axios.get('/api/inventory/ingredients');
+                this.inventoryData = response.data;
+                this.maxId = Math.max(0, ...this.inventoryData.map(item => item.id || 0));
+                console.log('ingredient fetched:', this.inventoryData);
+            } catch (error) {
+                console.error('Error fetching ingredients:', error);
             }
         },
-        addIngredient(){
-            this.inventoryData.push({name: "", stock: 0, threshold: 0, change: 0, selected: true});
+        async updateInventory(invItem) {
+            try {
+                const response = await axios.post('/api/inventory/ingredients', { ingredients: [invItem] });
+                console.log(response.data.message);
+            } catch (error) {
+                console.error('Error updating ingredients:', error);
+            }
         },
-        orderIngredients(){
+        editIngredient(index) {
+            if (this.inventoryData[index].selected) {
+                this.inventoryData[index].selected = false
+                this.updateInventory(this.inventoryData[index])
+                //TODO: API call to send to backend
+            } else{
+                this.inventoryData[index].selected = true
+            }
+        },
+        addIngredient() {
+            this.maxId += 1;
+            this.inventoryData.push({id: this.maxId, name: "", stock: 0, threshold: 0, change: 0, selected: true });
+        },
+        orderIngredients() {
             console.log("Order ingredients function called");
             //TODO Matthew: go through and record how many of each ingredient will be ordered.
             //TODO: API call to update inventory 
