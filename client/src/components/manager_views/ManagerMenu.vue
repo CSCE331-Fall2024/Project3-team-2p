@@ -1,8 +1,8 @@
 <template>
-    <router-link :to="{ name: 'ManagerHome' }">
-        <button>Go to About</button>
-    </router-link>
     <div class="inventory-dashboard">
+        <router-link :to="{ name: 'ManagerHome' }">
+            <button>Go to Home</button>
+        </router-link>
         <div class="table-container">
             <table class="inventory-table">
                 <thead>
@@ -31,7 +31,7 @@
                         <td v-else>{{ item.entree }}</td>
 
                         <td><button @click="editMenuItem(index)" class="action-button">{{ item.selected ? "Save" :
-                                "Select"}}</button></td>
+                            "Select" }}</button></td>
                     </tr>
                 </tbody>
             </table>

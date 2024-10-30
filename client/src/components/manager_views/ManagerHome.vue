@@ -26,7 +26,7 @@ export default {
     height: 100%;
 }
 
-.inventory-dashboard {
+.inventory-dashboard, .main-page {
     background-color: #cc3333;
     padding: 20px;
     text-align: center;

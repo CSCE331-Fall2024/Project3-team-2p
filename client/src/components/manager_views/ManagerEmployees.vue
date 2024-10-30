@@ -1,5 +1,8 @@
 <template>
     <div class="inventory-dashboard">
+        <router-link :to="{ name: 'ManagerHome' }">
+            <button>Go to Home</button>
+        </router-link>
         <div class="table-container">
             <table class="inventory-table">
                 <thead>
