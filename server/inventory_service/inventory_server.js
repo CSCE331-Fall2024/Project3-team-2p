@@ -35,14 +35,6 @@ router.get('/menu-items', async (req, res) => {
 router.post('/menu-items', async (req, res) => {
     const { menuItems, ingredientsMenuItems } = req.body;
 
-    if (!Array.isArray(menuItems) || !menuItems.length) {
-        return res.status(400).json({ error: 'menuItems must be a non-empty array.' });
-    }
-
-    if (!Array.isArray(ingredientsMenuItems) || !ingredientsMenuItems.length) {
-        return res.status(400).json({ error: 'ingredientsMenuItems must be a non-empty array.' });
-    }
-
     try {
         await inventoryService.updateMenuItems(menuItems, ingredientsMenuItems);
         res.status(201).json({ message: 'Menu items updated successfully' });
@@ -82,10 +74,6 @@ router.get('/ingredients', async (req, res) => {
 router.post('/ingredients', async (req, res) => {
     const { ingredients } = req.body;
 
-    if (!Array.isArray(ingredients) || !ingredients.length) {
-        return res.status(400).json({ error: 'ingredients must be a non-empty array.' });
-    }
-
     try {
         await inventoryService.updateIngredients(ingredients);
         res.status(201).json({ message: 'Ingredients updated successfully' });
@@ -122,10 +110,6 @@ router.get('/employees', async (req, res) => {
 
 router.post('/employees', async (req, res) => {
     const { employees } = req.body;
-
-    if (!Array.isArray(employees) || !employees.length) {
-        return res.status(400).json({ error: 'employees must be a non-empty array.' });
-    }
 
     try {
         await inventoryService.updateEmployees(employees);
