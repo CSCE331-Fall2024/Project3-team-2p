@@ -75,6 +75,8 @@ export default {
                     obj[item.id] = [];
                     return obj;
                 }, {});*/
+                console.log(this.menuData);
+
                 console.log(menuItem.Name)
                 const ingredientsMenuItems = {
                     [menuItem.id]: []
