@@ -75,6 +75,8 @@ export default {
                     obj[item.id] = [];
                     return obj;
                 }, {});*/
+                console.log(this.menuData);
+
                 console.log(menuItem.Name)
                 const ingredientsMenuItems = {
                     [menuItem.id]: []
@@ -82,7 +84,7 @@ export default {
                 const response = await axios.post('/api/inventory/menu-items', { menuItems: [menuItem], ingredientsMenuItems });
                 //console.log({ menuItems: [menuItem], ingredientsMenuItems });
 
-                //console.log(response.data.message);
+                console.log(response.data.message);
             } catch (error) {
                 console.error('Error updating ingredients:', error);
             }

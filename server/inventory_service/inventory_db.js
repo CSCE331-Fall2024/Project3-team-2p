@@ -55,7 +55,7 @@ class InventoryService {
      */
     async getAllMenuItems() {
         const query = `
-            SELECT id, name, price
+            SELECT id, name, price, entree
             FROM menuitems
             ORDER BY id ASC;
         `;
@@ -150,9 +150,9 @@ class InventoryService {
             for (const item of menuItems) {
                 await this.pool.query(query, [
                     item.id,
-                    item.Name,
-                    item["Additional Cost"],
-                    item.Entree
+                    item.name,
+                    item.price,
+                    item.entree
                 ]);
             }
         } catch (error) {
