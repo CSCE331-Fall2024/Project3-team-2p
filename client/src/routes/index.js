@@ -4,6 +4,7 @@ import ManagerHome from "../components/manager_views/ManagerHome.vue"
 import ManagerMenu from "../components/manager_views/ManagerMenu.vue"
 import ManagerInventory from "../components/manager_views/ManagerInventory.vue";
 import ManagerEmployees from "../components/manager_views/ManagerEmployees.vue";
+import customerView  from "@/components/customerView.vue";
 //add routes here
 const routes = [
     /*{
@@ -30,6 +31,11 @@ const routes = [
         path: "/Employees",
         name: "ManagerEmployees",
         component: ManagerEmployees,
+    },
+    {
+        path: "/Customers",
+        name: "customerView",
+        component: customerView,
     },
 ];
 const router = createRouter({

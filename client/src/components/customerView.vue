@@ -2,7 +2,7 @@
   <div class="app-container">
     <!-- Left side: Main view or Entree selection view -->
     <div class="left-side">
-      <div v-if="!isSelectingEntrees">
+      <div v-if="!isSelectingEntrees && !isSelectingSides">
         <!-- Suggested Orders section -->
         <h2>Suggested Orders</h2>
         <div class="suggested-orders">
@@ -89,7 +89,7 @@
 
 <script>
 import axios from 'axios';
-
+axios.defaults.baseURL = 'http://localhost:3000';
 export default {
   data() {
     return {
@@ -121,7 +121,7 @@ export default {
   methods: {
     async fetchEntrees() {
     try {
-      const response = await axios.get('/api/entrees');
+      const response = await axios.get('/api/customers/entrees');
       this.entrees = response.data;
       console.log('Entrees fetched:', this.entrees);
     } catch (error) {
@@ -130,7 +130,7 @@ export default {
   },
     async fetchSides() {
       try {
-        const response = await axios.get('/api/sides');
+        const response = await axios.get('/api/customers/sides');
         this.sides = response.data;
       } catch (error) {
         console.error('Error fetching sides:', error);
@@ -144,12 +144,13 @@ export default {
     },
     selectBuildYourOwn(item) {
       this.isSelectingEntrees = true;
-      this.selectedBuildItem = { ...item, description: "", entrees: [] };
+      this.selectedBuildItem = { ...item, description: "", entrees: [], sides: [] };
       this.orderType = item.type
 
     },
     addEntreeToOrder(entree) {
       this.entreeList.push(entree.name);
+      this.selectedBuildItem.entrees.push(entree.name)
       this.selectedBuildItem.description = this.selectedBuildItem.entrees.join(", ");
       if (!this.orders.includes(this.selectedBuildItem)) {
         this.orders.push(this.selectedBuildItem);
@@ -161,6 +162,7 @@ export default {
       }
     },
     addSideToOrder(side) {
+      this.selectedBuildItem.sides.push(side.name)
       this.sideList.push(side.name);
     },
     goBack() {
@@ -212,7 +214,8 @@ export default {
 
 .suggested-order,
 .build-item,
-.entree-item {
+.entree-item,
+.side-item { /* Combined styles for both entree and side items */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -226,7 +229,8 @@ export default {
 
 .suggested-order:hover,
 .build-item:hover,
-.entree-item:hover {
+.entree-item:hover,
+.side-item:hover { /* Hover effect for both entree and side items */
   transform: scale(1.05);
 }
 
@@ -260,8 +264,9 @@ export default {
   margin-top: 10px;
 }
 
-/* Entree selection styling */
-.entree-selection {
+/* Entree and Sides selection styling */
+.entree-selection,
+.side-selection { /* Matching styles for entree and side selection */
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -269,7 +274,8 @@ export default {
   align-items: center;
 }
 
-.entrees {
+.entrees,
+.sides { /* Matching grid layout for entree and side items */
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
@@ -286,3 +292,4 @@ export default {
   border-radius: 5px;
 }
 </style>
+
