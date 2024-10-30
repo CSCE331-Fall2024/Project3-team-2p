@@ -1,7 +1,8 @@
 import express from 'express';
+import cors from 'cors';
 import path from 'path';
 import customerRoutes from './customer_interface/customer_server.js'
-import cors from 'cors'
+import inventoryRoutes from './inventory_service/inventory_server.js'
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,10 +11,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({ origin: 'http://localhost:8080' }));
 app.use(express.json());
 app.use('/api/customers', customerRoutes);
-
-app.get('/', (req, res) => {
-    res.status(200).json({ message: "Hello, World!", success: true, data: { name: "John Doe", age: 30 } });
-});
+app.use('/api/inventory', inventoryRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
