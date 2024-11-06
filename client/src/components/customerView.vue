@@ -184,18 +184,28 @@ export default {
     async placeOrder() {
   const { orderType, entreeList, sideList } = this;
 
-  // Validate order details
-  if (![0, 1, 2].includes(orderType)) {
-      alert('Invalid order type. Please select a valid type.');
-      return;
+    // Validate order details
+    if (![0, 1, 2].includes(orderType)) {
+          alert('Invalid order type. Please select a valid type.');
+          return;
     }
     if (entreeList.length === 0) {
-      alert('Please add at least one entree.');
-      return;
+        alert('Please add at least one entree.');
+        return;
+    }
+    if ((orderType === 0 && entreeList.length != 1) ||
+        (orderType === 1 && entreeList.length != 2) ||
+        (orderType === 2 && entreeList.length != 3)) {
+        alert("Invalid number of entrees.");
+        return;
     }
     if (sideList.length === 0) {
-      alert('Please add at least one side.');
-      return;
+        alert('Please add at least one side.');
+        return;
+    }
+    if (sideList.length != 1) {
+        alert("Too many sides.");
+        return;
     }
 
     try {

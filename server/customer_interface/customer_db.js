@@ -178,13 +178,3 @@ class CustomerService {
 }
 
 export default CustomerService;
-
-/*
-//Example usage of this class:
-
-const customer = new CustomerService();
-await customer.placeOrder(2, ["Broccoli Beef", "Honey Walnut Shrimp", "Mushroom Chicken"], ["Chow Mein"]);
-await customer.getEntrees();
-await customer.getSides();
-customer.close();
-*/
