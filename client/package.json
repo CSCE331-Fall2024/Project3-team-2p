@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "prod" : "npx serve dist",
+    "prod" : "npx serve -s dist",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
