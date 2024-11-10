@@ -182,47 +182,49 @@ export default {
       this.isSelectingSides = false;
     },
     async placeOrder() {
-  const { orderType, entreeList, sideList } = this;
 
-    // Validate order details
-    if (![0, 1, 2].includes(orderType)) {
+      for (const order of this.orders) {
+        const orderType = order.type;
+        const entrees = order.entrees;
+        const sides = order.sides;
+
+        if (![0, 1, 2].includes(orderType)) {
           alert('Invalid order type. Please select a valid type.');
           return;
-    }
-    if (entreeList.length === 0) {
-        alert('Please add at least one entree.');
-        return;
-    }
-    if ((orderType === 0 && entreeList.length != 1) ||
-        (orderType === 1 && entreeList.length != 2) ||
-        (orderType === 2 && entreeList.length != 3)) {
-        alert("Invalid number of entrees.");
-        return;
-    }
-    if (sideList.length === 0) {
-        alert('Please add at least one side.');
-        return;
-    }
-    if (sideList.length != 1) {
-        alert("Too many sides.");
-        return;
-    }
+        }
+        if (entrees.length === 0) {
+            alert('Please add at least one entree.');
+            return;
+        }
+        if ((orderType === 0 && entrees.length != 1) ||
+            (orderType === 1 && entrees.length != 2) ||
+            (orderType === 2 && entrees.length != 3)) {
+            alert("Invalid number of entrees.");
+            return;
+        }
+        if (sides.length === 0) {
+            alert('Please add at least one side.');
+            return;
+        }
+        if (sides.length != 1) {
+            alert("Too many sides.");
+            return;
+        }
 
-    try {
-      // Send order data to the server
-      const response = await axios.post('/api/customers/place-order', {
-        order_type: orderType,
-        entrees: entreeList,
-        sides: sideList
-      });
-
-      // Handle successful order placement
-      alert(response.data.message);
+        try {
+        // Send order data to the server
+          await axios.post('/api/customers/place-order', {
+            order_type: orderType,
+            entrees: entrees,
+            sides: sides
+          });
+          } catch (error) {
+            console.error('Error placing order:', error); 
+            alert('Failed to place order. Please try again.');
+          }
+      }  
+      alert("Order Placed Successfully")
       this.resetOrder(); // Reset order summary if needed
-    } catch (error) {
-      console.error('Error placing order:', error);
-      alert('Failed to place order. Please try again.');
-    }
   },
   
   // Reset order after placing (optional)
