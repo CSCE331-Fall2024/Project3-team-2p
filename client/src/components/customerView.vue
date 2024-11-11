@@ -155,6 +155,10 @@ export default {
       this.entreeList.push(entree.name);
       this.selectedBuildItem.entrees.push(entree.name)
       this.selectedBuildItem.description = this.selectedBuildItem.entrees.join(", ");
+      let tempPrice = this.selectedBuildItem.price.substring(1);
+      tempPrice = (Number(tempPrice) + Number(entree.price)).toFixed(2);
+      tempPrice = "$" + tempPrice;
+      this.selectedBuildItem.price = tempPrice;
       if (!this.orders.includes(this.selectedBuildItem)) {
         this.orders.push(this.selectedBuildItem);
       }
