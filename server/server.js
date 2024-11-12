@@ -7,7 +7,6 @@ import inventoryRoutes from './inventory_service/inventory_server.js'
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
 app.use(cors());
 app.use(express.json());
 app.use('/api/customers', customerRoutes);
