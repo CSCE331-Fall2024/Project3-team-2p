@@ -36,13 +36,14 @@
       </div>
       <div v-else-if="isSelectingSides" class="side-selection">
         <button @click="goBackToEntreeSelection" class="back-button">⬅ Back</button>
-        <h2>Select Sides for {{ selectedBuildItem.name }}</h2>
+        <h2>Select up to 2 Sides for {{ selectedBuildItem.name }}</h2>
         <div class="sides">
           <div
             v-for="side in sides" 
             :key="side.id"
             class="side-item"
             @click="addSideToOrder(side)"
+            :disabled="isSideSelectionComplete"
           >
             <div class="details">
               <h3>{{ side.name }}</h3>
@@ -96,6 +97,7 @@ export default {
       isSelectingSides: false,
       isSelectingEntrees: false,
       selectedBuildItem: null,
+      maxSides: 2,
       orders: [],
       entreeList: [], //List of entrees for API call
       sideList: [], //list of sides for API call
@@ -117,6 +119,11 @@ export default {
   created() {
     this.fetchEntrees();
     this.fetchSides();
+  },
+  computed: {
+    isSideSelectionComplete() {
+      return this.selectedBuildItem.sides.length >= this.maxSides;
+    },
   },
   methods: {
     async fetchEntrees() {
@@ -155,6 +162,10 @@ export default {
       this.entreeList.push(entree.name);
       this.selectedBuildItem.entrees.push(entree.name)
       this.selectedBuildItem.description = this.selectedBuildItem.entrees.join(", ");
+      let tempPrice = this.selectedBuildItem.price.substring(1);
+      tempPrice = (Number(tempPrice) + Number(entree.price)).toFixed(2);
+      tempPrice = "$" + tempPrice;
+      this.selectedBuildItem.price = tempPrice;
       if (!this.orders.includes(this.selectedBuildItem)) {
         this.orders.push(this.selectedBuildItem);
       }
@@ -165,9 +176,14 @@ export default {
       }
     },
     addSideToOrder(side) {
-      this.selectedBuildItem.sides.push(side.name)
-      this.sideList.push(side.name);
-      this.selectedBuildItem.description = [...this.selectedBuildItem.entrees, ...this.selectedBuildItem.sides].join(", ");
+      if (this.selectedBuildItem.sides.length < this.maxSides) {
+        this.selectedBuildItem.sides.push(side.name);
+        this.sideList.push(side.name);
+        this.selectedBuildItem.description = [
+          ...this.selectedBuildItem.entrees,
+          ...this.selectedBuildItem.sides,
+        ].join(", ");
+      }
     },
     goBack() {
       this.isSelectingEntrees = false;
@@ -182,47 +198,49 @@ export default {
       this.isSelectingSides = false;
     },
     async placeOrder() {
-  const { orderType, entreeList, sideList } = this;
 
-    // Validate order details
-    if (![0, 1, 2].includes(orderType)) {
+      for (const order of this.orders) {
+        const orderType = order.type;
+        const entrees = order.entrees;
+        const sides = order.sides;
+
+        if (![0, 1, 2].includes(orderType)) {
           alert('Invalid order type. Please select a valid type.');
           return;
-    }
-    if (entreeList.length === 0) {
-        alert('Please add at least one entree.');
-        return;
-    }
-    if ((orderType === 0 && entreeList.length != 1) ||
-        (orderType === 1 && entreeList.length != 2) ||
-        (orderType === 2 && entreeList.length != 3)) {
-        alert("Invalid number of entrees.");
-        return;
-    }
-    if (sideList.length === 0) {
-        alert('Please add at least one side.');
-        return;
-    }
-    if (sideList.length != 1) {
-        alert("Too many sides.");
-        return;
-    }
+        }
+        if (entrees.length === 0) {
+            alert('Please add at least one entree.');
+            return;
+        }
+        if ((orderType === 0 && entrees.length != 1) ||
+            (orderType === 1 && entrees.length != 2) ||
+            (orderType === 2 && entrees.length != 3)) {
+            alert("Invalid number of entrees.");
+            return;
+        }
+        if (sides.length === 0) {
+            alert('Please add at least one side.');
+            return;
+        }
+        if (sides.length > 2) {
+            alert("Too many sides.");
+            return;
+        }
 
-    try {
-      // Send order data to the server
-      const response = await axios.post('/api/customers/place-order', {
-        order_type: orderType,
-        entrees: entreeList,
-        sides: sideList
-      });
-
-      // Handle successful order placement
-      alert(response.data.message);
+        try {
+        // Send order data to the server
+          await axios.post('/api/customers/place-order', {
+            order_type: orderType,
+            entrees: entrees,
+            sides: sides
+          });
+          } catch (error) {
+            console.error('Error placing order:', error); 
+            alert('Failed to place order. Please try again.');
+          }
+      }  
+      alert("Order Placed Successfully")
       this.resetOrder(); // Reset order summary if needed
-    } catch (error) {
-      console.error('Error placing order:', error);
-      alert('Failed to place order. Please try again.');
-    }
   },
   
   // Reset order after placing (optional)
