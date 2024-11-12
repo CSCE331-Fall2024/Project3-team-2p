@@ -36,13 +36,14 @@
       </div>
       <div v-else-if="isSelectingSides" class="side-selection">
         <button @click="goBackToEntreeSelection" class="back-button">⬅ Back</button>
-        <h2>Select Sides for {{ selectedBuildItem.name }}</h2>
+        <h2>Select up to 2 Sides for {{ selectedBuildItem.name }}</h2>
         <div class="sides">
           <div
             v-for="side in sides" 
             :key="side.id"
             class="side-item"
             @click="addSideToOrder(side)"
+            :disabled="isSideSelectionComplete"
           >
             <div class="details">
               <h3>{{ side.name }}</h3>
@@ -96,6 +97,7 @@ export default {
       isSelectingSides: false,
       isSelectingEntrees: false,
       selectedBuildItem: null,
+      maxSides: 2,
       orders: [],
       entreeList: [], //List of entrees for API call
       sideList: [], //list of sides for API call
@@ -117,6 +119,11 @@ export default {
   created() {
     this.fetchEntrees();
     this.fetchSides();
+  },
+  computed: {
+    isSideSelectionComplete() {
+      return this.selectedBuildItem.sides.length >= this.maxSides;
+    },
   },
   methods: {
     async fetchEntrees() {
@@ -169,9 +176,14 @@ export default {
       }
     },
     addSideToOrder(side) {
-      this.selectedBuildItem.sides.push(side.name)
-      this.sideList.push(side.name);
-      this.selectedBuildItem.description = [...this.selectedBuildItem.entrees, ...this.selectedBuildItem.sides].join(", ");
+      if (this.selectedBuildItem.sides.length < this.maxSides) {
+        this.selectedBuildItem.sides.push(side.name);
+        this.sideList.push(side.name);
+        this.selectedBuildItem.description = [
+          ...this.selectedBuildItem.entrees,
+          ...this.selectedBuildItem.sides,
+        ].join(", ");
+      }
     },
     goBack() {
       this.isSelectingEntrees = false;
@@ -210,7 +222,7 @@ export default {
             alert('Please add at least one side.');
             return;
         }
-        if (sides.length != 1) {
+        if (sides.length > 2) {
             alert("Too many sides.");
             return;
         }
