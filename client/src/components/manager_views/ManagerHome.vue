@@ -1,22 +1,29 @@
 <template>
     <div class="main-page">
         <h1>Manager Dashboard</h1>
+        <div class="table-container">
+            <IngredientUsageChart/>
+        </div>
         <router-link :to="{ name: 'ManagerMenu' }">
-            <button>Go to Menu</button>
+            <button class="action-button">Go to Menu</button>
         </router-link>
         <router-link :to="{ name: 'ManagerInventory' }">
-            <button>Go to Inventory</button>
+            <button class="action-button">Go to Inventory</button>
         </router-link>
         <router-link :to="{ name: 'ManagerEmployees' }">
-            <button>Go to Employees</button>
+            <button class="action-button">Go to Employees</button>
         </router-link>
     </div>
     <router-view></router-view>
 </template>
 
 <script>
+import IngredientUsageChart from './usageChart.vue';
 export default {
-    name: 'ManagerHome'
+    name: 'ManagerHome',
+    components: {
+        IngredientUsageChart,
+    },
 };
 </script>
 
@@ -26,7 +33,8 @@ export default {
     height: 100%;
 }
 
-.inventory-dashboard, .main-page {
+.inventory-dashboard,
+.main-page {
     background-color: #cc3333;
     padding: 20px;
     text-align: center;
