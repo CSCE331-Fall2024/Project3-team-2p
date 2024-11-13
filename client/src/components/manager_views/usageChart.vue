@@ -1,7 +1,14 @@
 <template>
     <div>
         <h2>Ingredient Usage Over Time</h2>
-        <canvas id="ingredient-usage-chart"></canvas>
+        <div class="graph-div">
+            <canvas id="ingredient-usage-chart"></canvas>
+            <select v-model="selectedIngredient" size="10">
+                <option v-for="ingredient in ingredients" :key="ingredient.id" :value="ingredient.name">
+                    {{ ingredient.name }}
+                </option>
+            </select>
+        </div>
     </div>
 </template>
 
@@ -13,6 +20,42 @@ export default {
     name: 'IngredientUsageChart',
     setup() {
         const chartRef = ref(null);
+        const selectedIngredient = ref('');
+
+        const ingredients = ref([
+            { id: 1, name: 'Chicken' },
+            { id: 2, name: 'Beef' },
+            { id: 3, name: 'Rice' },
+            { id: 4, name: 'Shrimp' },
+            { id: 1, name: 'Chicken' },
+            { id: 2, name: 'Beef' },
+            { id: 3, name: 'Rice' },
+            { id: 4, name: 'Shrimp' },
+            { id: 1, name: 'Chicken' },
+            { id: 2, name: 'Beef' },
+            { id: 3, name: 'Rice' },
+            { id: 4, name: 'Shrimp' },
+            { id: 1, name: 'Chicken' },
+            { id: 2, name: 'Beef' },
+            { id: 3, name: 'Rice' },
+            { id: 4, name: 'Shrimp' },
+            { id: 1, name: 'Chicken' },
+            { id: 2, name: 'Beef' },
+            { id: 3, name: 'Rice' },
+            { id: 4, name: 'Shrimp' },
+            { id: 1, name: 'Chicken' },
+            { id: 2, name: 'Beef' },
+            { id: 3, name: 'Rice' },
+            { id: 4, name: 'Shrimp' },
+            { id: 1, name: 'Chicken' },
+            { id: 2, name: 'Beef' },
+            { id: 3, name: 'Rice' },
+            { id: 4, name: 'Shrimp' },
+            { id: 1, name: 'Chicken' },
+            { id: 2, name: 'Beef' },
+            { id: 3, name: 'Rice' },
+            { id: 4, name: 'Shrimp' },
+        ]);
 
         const mockData = [
             { date: '2024-11-01', amount: 50 },
@@ -25,6 +68,7 @@ export default {
         ];
 
         onMounted(() => {
+            selectedIngredient.value = ingredients.value[0].name;
             const ctx = document.getElementById('ingredient-usage-chart').getContext('2d');
             chartRef.value = new Chart(ctx, {
                 type: 'line',
@@ -87,6 +131,8 @@ export default {
 
         return {
             chartRef,
+            ingredients,
+            selectedIngredient,
         };
     },
 };
@@ -100,6 +146,19 @@ h2 {
 
 canvas {
     display: block;
-    margin: 20px;
+    flex-grow: 1;
+    max-width: 88%;
+}
+
+select {
+    width: 10%;
+    margin: auto;
+}
+
+.graph-div {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
 }
 </style>
