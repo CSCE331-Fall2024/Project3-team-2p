@@ -34,6 +34,7 @@
           </div>
         </div>
       </div>
+      <!-- Side Selection View -->
       <div v-else-if="isSelectingSides" class="side-selection">
         <button @click="goBackToEntreeSelection" class="back-button">⬅ Back</button>
         <h2>Select up to 2 Sides for {{ selectedBuildItem.name }}</h2>
@@ -51,6 +52,9 @@
             </div>
           </div>
         </div>
+        <button v-if="selectedBuildItem.sides.length > 0" @click="addToCart" class="add-to-cart">
+          Add to Cart
+        </button>
       </div>
       <!-- Entree selection view -->
       <div v-else class="entree-selection">
@@ -103,23 +107,26 @@ export default {
       sideList: [], //list of sides for API call
       orderType: null, //order type for API call
       suggestedOrders: [
-        {name: "Bigger Plate",
-          price: "$11.99",
+        {name: "Plate",
+          price: "$10.99",
           description: "Broccoli Beef, Orange Chicken, White Rice",
           entrees: ["Broccoli Beef", "Orange Chicken"],
-          sides: ["White Rice"]
+          sides: ["White Rice"],
+          type: 1
         },
-        {name: "Bigger Plate",
-          price: "$11.99",
-          description: "Broccoli Beef, Orange Chicken, Chow Mein",
+        {name: "Plate",
+          price: "$10.99",
+          description: "Broccoli Beef, Teriyaki Chicken, Chow Mein",
           entrees: ["Broccoli Beef", "Orange Chicken"],
           sides: ["Chow Mein"],
+          type: 1
         },
         {name: "Bowl",
           price: "$9.99",
-          description: "Orange Chicken, Rice",
+          description: "Orange Chicken, White Rice",
           entrees: ["Orange Chicken"],
-          sides: ["Rice"]
+          sides: ["White Rice"],
+          type: 0
         }
       ],
       buildItems: [
@@ -217,6 +224,14 @@ export default {
         this.isSelectingEntrees = false;
         this.isSelectingSides = false;
       }
+    },
+    addToCart() {
+      this.resetSelection();
+    },
+    resetSelection() {
+      this.selectedBuildItem = null;
+      this.isSelectingEntrees = false;
+      this.isSelectingSides = false;
     },
     goBack() {
       if (this.selectedBuildItem) {
@@ -408,6 +423,7 @@ export default {
   gap: 10px;
 }
 
+
 .back-button {
   align-self: flex-start;
   padding: 10px;
@@ -418,5 +434,30 @@ export default {
   border: none;
   border-radius: 5px;
 }
+
+.add-to-cart {
+  margin-top: 20px;
+  padding: 12px 24px;
+  background-color: #ff0000;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.add-to-cart:hover {
+  background-color: #fe0000;
+  transform: scale(1.05);
+}
+.add-to-cart {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.add-to-cart:active{
+  background-color: #e63900;
+  transform: scale(1);
+}
+
 </style>
 
