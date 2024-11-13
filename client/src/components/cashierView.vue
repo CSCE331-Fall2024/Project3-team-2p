@@ -35,7 +35,7 @@
           </div>
         </div>
         <button
-          v-if="selectedBuildItem.sides.length > 0"
+          v-if="selectedBuildItem.sides.length > 0 && selectedBuildItem.sides.length < 2"
           @click="addToCart"
           class="add-to-cart"
         >
@@ -63,6 +63,15 @@
     <!-- Right side: Order Summary section -->
     <div class="order-summary">
       <h2>Order Summary</h2>
+
+      <!-- Show in-progress order while building -->
+      <div v-if="inProgressOrder" class="order-item in-progress">
+        <h4>{{ inProgressOrder.name }} (In Progress)</h4>
+        <p>{{ inProgressOrder.description }}</p>
+        <span>{{ inProgressOrder.price }}</span>
+      </div>
+
+      <!-- List of completed orders -->
       <div v-for="(order, index) in orders" :key="index" class="order-item">
         <h4>{{ order.name }}</h4>
         <p>{{ order.description }}</p>
@@ -86,13 +95,21 @@ export default {
       orders: [],
       buildItems: [
         { name: "Bowl", price: "$8.99", type: 0 },
-        { name: "Plate", price: "$10.99", type: 1 },
+        { name: "Plate", price: "$9.99", type: 1 },
         { name: "Bigger Plate", price: "$11.99", type: 2 },
       ],
       entrees: [],
       sides: [],
-      server: null
+      server: 2 // Assuming this is the server ID, adjust as needed
     };
+  },
+  computed: {
+    // Computed property to display the in-progress order
+    inProgressOrder() {
+      return this.selectedBuildItem
+        ? { ...this.selectedBuildItem, description: this.selectedBuildItem.description || "" }
+        : null;
+    },
   },
   created() {
     this.fetchEntrees();
@@ -109,7 +126,7 @@ export default {
     },
     selectBuildYourOwn(item) {
       this.isSelectingEntrees = true;
-      this.selectedBuildItem = { ...item, description: "", entrees: [], sides: [], type: item.type, server: 2};
+      this.selectedBuildItem = { ...item, description: "", entrees: [], sides: [], type: item.type, server: this.server };
     },
     addEntreeToOrder(entree) {
       const entreeLimit = this.selectedBuildItem.name === 'Bowl' ? 1 
@@ -122,10 +139,6 @@ export default {
 
       this.selectedBuildItem.entrees.push(entree.name);
       this.selectedBuildItem.description = this.selectedBuildItem.entrees.join(", ");
-
-      if (!this.orders.includes(this.selectedBuildItem)) {
-        this.orders.push(this.selectedBuildItem);
-      }
 
       if (this.selectedBuildItem.entrees.length >= entreeLimit) {
         this.goToSidesView();
@@ -140,28 +153,72 @@ export default {
         ].join(", ");
       }
       if (this.selectedBuildItem.sides.length >= 2) {
-        this.resetSelection(); // Go back to the beginning if max sides reached
+        this.addToCart();
       }
     },
     addToCart() {
+      this.orders.push({ ...this.selectedBuildItem });
+      console.log("Order added to cart:", this.selectedBuildItem);
       this.resetSelection();
     },
     removeOrder(index) {
       this.orders.splice(index, 1);
       this.resetSelection();
     },
-    placeOrder() {
-      this.orders.forEach(order => {
-        axios.post('/api/cashier/place-order', {
-          order_type: order.type,
-          entrees: order.entrees,
-          sides: order.sides,
-          server: order.server
-        });
-      });
-      alert("Order Placed Successfully");
-      this.resetOrder();
-    },
+    async placeOrder() {
+
+      for (const order of this.orders) {
+        const orderType = order.type;
+        const entrees = order.entrees;
+        const sides = order.sides;
+        //const server = 2;
+
+        console.log(`Placing order with data:`, {
+            order_type: order.type,
+            entrees: order.entrees,
+            sides: order.sides,
+            //server: 2
+        })
+
+        if (![0, 1, 2].includes(orderType)) {
+          alert('Invalid order type. Please select a valid type.');
+          return;
+        }
+        if (entrees.length === 0) {
+            alert('Please add at least one entree.');
+            return;
+        }
+        if ((orderType === 0 && entrees.length != 1) ||
+            (orderType === 1 && entrees.length != 2) ||
+            (orderType === 2 && entrees.length != 3)) {
+            alert("Invalid number of entrees.");
+            return;
+        }
+        if (sides.length === 0) {
+            alert('Please add at least one side.');
+            return;
+        }
+        if (sides.length > 2) {
+            alert("Too many sides.");
+            return;
+        }
+
+        try {
+        // Send order data to the server
+          await axios.post('/api/customers/place-order', {
+            order_type: orderType,
+            entrees: entrees,
+            sides: sides,
+          });
+          } catch (error) {
+            console.error('Error placing order:', error); 
+            alert('Failed to place order. Please try again.');
+          }
+      }  
+      alert("Order Placed Successfully")
+      this.resetOrder(); // Reset order summary if needed
+  },
+
     resetOrder() {
       this.orders = [];
       this.resetSelection();
@@ -180,8 +237,11 @@ export default {
       this.isSelectingSides = true;
     },
     goBackToEntreeSelection() {
-      this.isSelectingEntrees = true;
-      this.isSelectingSides = false;
+      if (this.selectedBuildItem) {
+        this.selectedBuildItem.sides = [];
+        this.isSelectingSides = false;
+        this.isSelectingEntrees = true;
+      }
     }
   }
 };
@@ -202,7 +262,7 @@ export default {
 .order-summary {
   background-color: #333;
   color: #fff;
-  min-width: 400px; /* Set minimum width */
+  min-width: 400px;
   padding: 20px;
   border-radius: 8px;
 }
@@ -229,22 +289,20 @@ export default {
   background-color: #555;
 }
 
-/* Scrollable area for entree selection */
 .entree-selection .entrees {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 items per row */
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   max-height: 70vh;
   overflow-y: auto;
   padding: 10px;
 }
 
-/* Scrollable area for sides selection */
 .side-selection .sides {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 items per row */
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
-  max-height: 50vh; /* Adjust height as needed */
+  max-height: 50vh;
   overflow-y: auto;
   padding: 10px;
 }
@@ -274,7 +332,6 @@ export default {
   background-color: #ff5555;
 }
 
-/* Larger Back and Add to Cart buttons */
 .back-button, .add-to-cart {
   width: 100%;
   padding: 20px;
@@ -289,5 +346,3 @@ export default {
   background-color: #555;
 }
 </style>
-
-
