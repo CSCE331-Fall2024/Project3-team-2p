@@ -18,7 +18,7 @@ class AnalyticsService {
      * Retrieves ingredient usage data within a specific timeframe
      * @param {Date} startDate - Start date for the timeframe
      * @param {Date} endDate - End date for the timeframe
-     * @param {string} ingredientName - Name of the ingredient
+     * @param {string} ingredientId - ID of the ingredient
      * @returns {Promise<Array>} - Array of usage data for each day in the timeframe
      */
     async getIngredientInTimeframe(startDate, endDate, ingredientId) {
