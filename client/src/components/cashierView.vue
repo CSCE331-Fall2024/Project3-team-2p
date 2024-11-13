@@ -99,11 +99,11 @@ export default {
   },
   methods: {
     async fetchEntrees() {
-      const response = await axios.get('/api/customers/entrees');
+      const response = await axios.get('/api/cashier/entrees');
       this.entrees = response.data;
     },
     async fetchSides() {
-      const response = await axios.get('/api/customers/sides');
+      const response = await axios.get('/api/cashier/sides');
       this.sides = response.data;
     },
     selectBuildYourOwn(item) {
@@ -151,7 +151,7 @@ export default {
     },
     placeOrder() {
       this.orders.forEach(order => {
-        axios.post('/api/customers/place-order', {
+        axios.post('/api/cashier/place-order', {
           order_type: order.type,
           entrees: order.entrees,
           sides: order.sides
