@@ -90,7 +90,8 @@ export default {
         { name: "Bigger Plate", price: "$11.99", type: 2 },
       ],
       entrees: [],
-      sides: []
+      sides: [],
+      server: null
     };
   },
   created() {
@@ -108,7 +109,7 @@ export default {
     },
     selectBuildYourOwn(item) {
       this.isSelectingEntrees = true;
-      this.selectedBuildItem = { ...item, description: "", entrees: [], sides: [] };
+      this.selectedBuildItem = { ...item, description: "", entrees: [], sides: [], type: item.type, server: 2};
     },
     addEntreeToOrder(entree) {
       const entreeLimit = this.selectedBuildItem.name === 'Bowl' ? 1 
@@ -154,7 +155,8 @@ export default {
         axios.post('/api/cashier/place-order', {
           order_type: order.type,
           entrees: order.entrees,
-          sides: order.sides
+          sides: order.sides,
+          server: order.server
         });
       });
       alert("Order Placed Successfully");
