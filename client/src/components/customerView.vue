@@ -103,9 +103,24 @@ export default {
       sideList: [], //list of sides for API call
       orderType: null, //order type for API call
       suggestedOrders: [
-        { name: "Bigger Plate", price: "$14.99", description: "Broccoli Beef, Orange Chicken, White Rice" },
-        { name: "Bigger Plate", price: "$14.99", description: "Broccoli Beef, Orange Chicken, Chow Mein" },
-        { name: "Bowl", price: "$9.99", description: "Orange Chicken, Rice" },
+        {name: "Bigger Plate",
+          price: "$11.99",
+          description: "Broccoli Beef, Orange Chicken, White Rice",
+          entrees: ["Broccoli Beef", "Orange Chicken"],
+          sides: ["White Rice"]
+        },
+        {name: "Bigger Plate",
+          price: "$11.99",
+          description: "Broccoli Beef, Orange Chicken, Chow Mein",
+          entrees: ["Broccoli Beef", "Orange Chicken"],
+          sides: ["Chow Mein"],
+        },
+        {name: "Bowl",
+          price: "$9.99",
+          description: "Orange Chicken, Rice",
+          entrees: ["Orange Chicken"],
+          sides: ["Rice"]
+        }
       ],
       buildItems: [
         { name: "Bowl", price: "$8.99", type: 0 },
@@ -159,24 +174,36 @@ export default {
 
     },
     addEntreeToOrder(entree) {
+      const entreeLimit = this.selectedBuildItem.name === 'Bowl' ? 1 
+                        : this.selectedBuildItem.name === 'Plate' ? 2 
+                        : 3;
+
+      // Check if entrees exceed the allowed number for this order type
+      if (this.selectedBuildItem.entrees.length >= entreeLimit) {
+        this.selectedBuildItem.entrees.shift(); // Remove the first entree (FIFO)
+      }
+
+      this.selectedBuildItem.entrees.push(entree.name);
       this.entreeList.push(entree.name);
-      this.selectedBuildItem.entrees.push(entree.name)
       this.selectedBuildItem.description = this.selectedBuildItem.entrees.join(", ");
+      
+      // Update price based on added entree
       let tempPrice = this.selectedBuildItem.price.substring(1);
       tempPrice = (Number(tempPrice) + Number(entree.price)).toFixed(2);
-      tempPrice = "$" + tempPrice;
-      this.selectedBuildItem.price = tempPrice;
+      this.selectedBuildItem.price = `$${tempPrice}`;
+      
+      // Check if this build item is already in orders
       if (!this.orders.includes(this.selectedBuildItem)) {
         this.orders.push(this.selectedBuildItem);
       }
-      // Move to sides view based on the build item type
-      const entreeCount = this.selectedBuildItem.name === 'Bowl' ? 1 : this.selectedBuildItem.name === 'Plate' ? 2 : 3;
-      if (this.selectedBuildItem.entrees.length >= entreeCount) {
+
+      // Move to sides selection if entree count meets the limit for the build item type
+      if (this.selectedBuildItem.entrees.length >= entreeLimit) {
         this.goToSidesView();
       }
     },
     addSideToOrder(side) {
-      if (this.selectedBuildItem.sides.length < this.maxSides) {
+      if(this.selectedBuildItem.sides.length < this.maxSides){
         this.selectedBuildItem.sides.push(side.name);
         this.sideList.push(side.name);
         this.selectedBuildItem.description = [
@@ -184,9 +211,24 @@ export default {
           ...this.selectedBuildItem.sides,
         ].join(", ");
       }
+      if (this.selectedBuildItem.sides.length === this.maxSides){
+        //this.orders.push({ ...this.selectedBuildItem });
+        this.selectedBuildItem = null;
+        this.isSelectingEntrees = false;
+        this.isSelectingSides = false;
+      }
     },
     goBack() {
+      if (this.selectedBuildItem) {
+        this.selectedBuildItem.entrees = [];
+        this.entreeList = [];
+        this.selectedBuildItem.description = '';
+        this.selectedBuildItem.price = this.buildItems.find(
+          (item) => item.name === this.selectedBuildItem.name
+        ).price;
+      }
       this.isSelectingEntrees = false;
+      this.isSelectingSides = false;
       this.selectedBuildItem = null;
     },
     goToSidesView() {
@@ -194,6 +236,11 @@ export default {
       this.isSelectingSides = true;
     },
     goBackToEntreeSelection() {
+      if (this.selectedBuildItem) {
+        this.selectedBuildItem.sides = [];
+        this.sideList = [];
+        this.selectedBuildItem.description = this.selectedBuildItem.entrees.join(', ');
+      }
       this.isSelectingEntrees = true;
       this.isSelectingSides = false;
     },
@@ -343,12 +390,15 @@ export default {
 
 /* Entree and Sides selection styling */
 .entree-selection,
-.side-selection { /* Matching styles for entree and side selection */
+.side-selection {
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding: 20px;
   align-items: center;
+  height: 100%; /* Ensures the section takes full height */
+  overflow-y: auto; /* Enables scrolling */
+  max-height: 90vh; /* Optional: limit the height to a portion of the viewport */
 }
 
 .entrees,
