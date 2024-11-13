@@ -62,24 +62,25 @@
 
     <!-- Right side: Order Summary section -->
     <div class="order-summary">
-      <h2>Order Summary</h2>
+    <h2>Order Summary</h2>
 
-      <!-- Show in-progress order while building -->
-      <div v-if="inProgressOrder" class="order-item in-progress">
+    <!-- Show in-progress order while building -->
+    <div v-if="inProgressOrder" class="order-item in-progress">
         <h4>{{ inProgressOrder.name }} (In Progress)</h4>
         <p>{{ inProgressOrder.description }}</p>
-        <span>{{ inProgressOrder.price }}</span>
-      </div>
+        <span>Total: ${{ inProgressOrder.totalCost }}</span>
+    </div>
 
-      <!-- List of completed orders -->
-      <div v-for="(order, index) in orders" :key="index" class="order-item">
+    <!-- List of completed orders -->
+    <div v-for="(order, index) in orders" :key="index" class="order-item">
         <h4>{{ order.name }}</h4>
         <p>{{ order.description }}</p>
-        <span>{{ order.price }}</span>
+        <span>Total: ${{ order.totalCost }}</span>
         <button @click="removeOrder(index)" class="remove-button">Remove</button>
-      </div>
-      <button class="place-order" @click="placeOrder">Place Order</button>
     </div>
+    <button class="place-order" @click="placeOrder">Place Order</button>
+    </div>
+
   </div>
 </template>
 
@@ -126,7 +127,9 @@ export default {
     },
     selectBuildYourOwn(item) {
       this.isSelectingEntrees = true;
-      this.selectedBuildItem = { ...item, description: "", entrees: [], sides: [], type: item.type, server: this.server };
+      const basePrice = Number(item.price.replace('$', ''));
+      this.selectedBuildItem = { ...item, description: "", entrees: [], sides: [], type: item.type, server: this.server, totalCost: basePrice};
+      this.selectedBuildItem.price = `$${this.selectedBuildItem.totalCost.toFixed(2)}`;
     },
     addEntreeToOrder(entree) {
       const entreeLimit = this.selectedBuildItem.name === 'Bowl' ? 1 
@@ -139,6 +142,10 @@ export default {
 
       this.selectedBuildItem.entrees.push(entree.name);
       this.selectedBuildItem.description = this.selectedBuildItem.entrees.join(", ");
+
+      this.selectedBuildItem.totalCost += entree.price;
+      this.selectedBuildItem.price = `$${this.selectedBuildItem.totalCost.toFixed(2)}`;
+
 
       if (this.selectedBuildItem.entrees.length >= entreeLimit) {
         this.goToSidesView();
@@ -171,13 +178,13 @@ export default {
         const orderType = order.type;
         const entrees = order.entrees;
         const sides = order.sides;
-        //const server = 2;
+        const server = 2;
 
         console.log(`Placing order with data:`, {
             order_type: order.type,
             entrees: order.entrees,
             sides: order.sides,
-            //server: 2
+            server: 2
         })
 
         if (![0, 1, 2].includes(orderType)) {
@@ -205,10 +212,12 @@ export default {
 
         try {
         // Send order data to the server
-          await axios.post('/api/customers/place-order', {
+          await axios.post('/api/cashier/place-order', {
             order_type: orderType,
             entrees: entrees,
             sides: sides,
+            server: server
+
           });
           } catch (error) {
             console.error('Error placing order:', error); 

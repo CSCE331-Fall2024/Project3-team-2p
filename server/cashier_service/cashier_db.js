@@ -6,7 +6,7 @@ class CashierService extends CustomerService {
     }
 
     async placeOrder(order_type, entrees, sides, server) {
-        super.placeOrder(order_type, entrees, sides, server);
+        await super.placeOrder(order_type, entrees, sides, server);
     }
 }
 
