@@ -3,6 +3,7 @@
     <!-- Left side: Build Your Own section -->
     <div class="left-side">
       <!-- Build Your Own section, only visible if no meal type is selected -->
+      <!-- Important: This is also visible if you have added one order, but also want to continue -->
       <div v-if="!selectedBuildItem">
         <h2>Build Your Own</h2>
         <div class="build-your-own">
@@ -30,6 +31,8 @@
             @click="addSideToOrder(side)"
             :disabled="isSideSelectionComplete"
           >
+          <!--This is to fill out the sides as well as have the functionality to add side to order
+          I have made it so that the div itself is a button-->
             <h3>{{ side.name }} - ${{ side.price }}</h3>
           </div>
         </div>
@@ -38,6 +41,8 @@
           @click="addToCart"
           class="add-to-cart"
         >
+        <!--Add to cart if user only wants one side, otherwise, if 2 are filled out, it will automatically
+        go to the creation of the next order -->
           Add to Cart
         </button>
       </div>
@@ -89,6 +94,7 @@ axios.defaults.baseURL = process.env.VUE_APP_BASE_URL;
 export default {
   data() {
     return {
+    //We initialize a lot of the globals here for the time being
       isSelectingSides: false,
       isSelectingEntrees: false,
       selectedBuildItem: null,
@@ -100,7 +106,7 @@ export default {
       ],
       entrees: [],
       sides: [],
-      server: 2 // Assuming this is the server ID, adjust as needed
+      server: 2 // Soon, will have a feature to take in the server ID
     };
   },
   computed: {
@@ -116,6 +122,7 @@ export default {
     this.fetchSides();
   },
   methods: {
+    //Very similar to customerView
     async fetchEntrees() {
       const response = await axios.get('/api/cashier/entrees');
       this.entrees = response.data;
