@@ -18,7 +18,6 @@
           </div>
         </div>
       </div>
-
       <!-- Side Selection View -->
       <div v-if="isSelectingSides" class="side-selection">
         <button @click="goBackToEntreeSelection" class="back-button">⬅ Back</button>
@@ -179,7 +178,6 @@ export default {
         const entrees = order.entrees;
         const sides = order.sides;
         const server = 2;
-
         console.log(`Placing order with data:`, {
             order_type: order.type,
             entrees: order.entrees,
@@ -211,7 +209,6 @@ export default {
         }
 
         try {
-        // Send order data to the server
           await axios.post('/api/cashier/place-order', {
             order_type: orderType,
             entrees: entrees,
