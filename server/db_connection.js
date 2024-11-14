@@ -15,6 +15,6 @@ class DBConnection {
             port: process.env.DBPORT,
         });
     }
-}
+ }
 
 export default DBConnection;

@@ -100,7 +100,7 @@ async function testUpdateIngredients() {
     }
 }
 
-// testGetAllIngredients();
+testGetAllIngredients();
 // testGetAllMenuItems();
 // testGetEmployees();
 
