@@ -34,15 +34,17 @@
           </div>
         </div>
       </div>
+      <!-- Side Selection View -->
       <div v-else-if="isSelectingSides" class="side-selection">
         <button @click="goBackToEntreeSelection" class="back-button">⬅ Back</button>
-        <h2>Select Sides for {{ selectedBuildItem.name }}</h2>
+        <h2>Select up to 2 Sides for {{ selectedBuildItem.name }}</h2>
         <div class="sides">
           <div
             v-for="side in sides" 
             :key="side.id"
             class="side-item"
             @click="addSideToOrder(side)"
+            :disabled="isSideSelectionComplete"
           >
             <div class="details">
               <h3>{{ side.name }}</h3>
@@ -50,6 +52,9 @@
             </div>
           </div>
         </div>
+        <button v-if="selectedBuildItem.sides.length > 0" @click="addToCart" class="add-to-cart">
+          Add to Cart
+        </button>
       </div>
       <!-- Entree selection view -->
       <div v-else class="entree-selection">
@@ -96,18 +101,37 @@ export default {
       isSelectingSides: false,
       isSelectingEntrees: false,
       selectedBuildItem: null,
+      maxSides: 2,
       orders: [],
       entreeList: [], //List of entrees for API call
       sideList: [], //list of sides for API call
       orderType: null, //order type for API call
       suggestedOrders: [
-        { name: "Bigger Plate", price: "$14.99", description: "Broccoli Beef, Orange Chicken, White Rice" },
-        { name: "Bigger Plate", price: "$14.99", description: "Broccoli Beef, Orange Chicken, Chow Mein" },
-        { name: "Bowl", price: "$9.99", description: "Orange Chicken, Rice" },
+        {name: "Plate",
+          price: "$10.99",
+          description: "Broccoli Beef, Orange Chicken, White Rice",
+          entrees: ["Broccoli Beef", "Orange Chicken"],
+          sides: ["White Rice"],
+          type: 1
+        },
+        {name: "Plate",
+          price: "$10.99",
+          description: "Broccoli Beef, Teriyaki Chicken, Chow Mein",
+          entrees: ["Broccoli Beef", "Orange Chicken"],
+          sides: ["Chow Mein"],
+          type: 1
+        },
+        {name: "Bowl",
+          price: "$9.99",
+          description: "Orange Chicken, White Rice",
+          entrees: ["Orange Chicken"],
+          sides: ["White Rice"],
+          type: 0
+        }
       ],
       buildItems: [
         { name: "Bowl", price: "$8.99", type: 0 },
-        { name: "Plate", price: "$10.99", type: 1 },
+        { name: "Plate", price: "$9.99", type: 1 },
         { name: "Bigger Plate", price: "$11.99", type: 2 },
       ],
       entrees: [],
@@ -117,6 +141,11 @@ export default {
   created() {
     this.fetchEntrees();
     this.fetchSides();
+  },
+  computed: {
+    isSideSelectionComplete() {
+      return this.selectedBuildItem.sides.length >= this.maxSides;
+    },
   },
   methods: {
     async fetchEntrees() {
@@ -152,25 +181,69 @@ export default {
 
     },
     addEntreeToOrder(entree) {
+      const entreeLimit = this.selectedBuildItem.name === 'Bowl' ? 1 
+                        : this.selectedBuildItem.name === 'Plate' ? 2 
+                        : 3;
+
+      // Check if entrees exceed the allowed number for this order type
+      if (this.selectedBuildItem.entrees.length >= entreeLimit) {
+        this.selectedBuildItem.entrees.shift(); // Remove the first entree (FIFO)
+      }
+
+      this.selectedBuildItem.entrees.push(entree.name);
       this.entreeList.push(entree.name);
-      this.selectedBuildItem.entrees.push(entree.name)
       this.selectedBuildItem.description = this.selectedBuildItem.entrees.join(", ");
+      
+      // Update price based on added entree
+      let tempPrice = this.selectedBuildItem.price.substring(1);
+      tempPrice = (Number(tempPrice) + Number(entree.price)).toFixed(2);
+      this.selectedBuildItem.price = `$${tempPrice}`;
+      
+      // Check if this build item is already in orders
       if (!this.orders.includes(this.selectedBuildItem)) {
         this.orders.push(this.selectedBuildItem);
       }
-      // Move to sides view based on the build item type
-      const entreeCount = this.selectedBuildItem.name === 'Bowl' ? 1 : this.selectedBuildItem.name === 'Plate' ? 2 : 3;
-      if (this.selectedBuildItem.entrees.length >= entreeCount) {
+
+      // Move to sides selection if entree count meets the limit for the build item type
+      if (this.selectedBuildItem.entrees.length >= entreeLimit) {
         this.goToSidesView();
       }
     },
     addSideToOrder(side) {
-      this.selectedBuildItem.sides.push(side.name)
-      this.sideList.push(side.name);
-      this.selectedBuildItem.description = [...this.selectedBuildItem.entrees, ...this.selectedBuildItem.sides].join(", ");
+      if(this.selectedBuildItem.sides.length < this.maxSides){
+        this.selectedBuildItem.sides.push(side.name);
+        this.sideList.push(side.name);
+        this.selectedBuildItem.description = [
+          ...this.selectedBuildItem.entrees,
+          ...this.selectedBuildItem.sides,
+        ].join(", ");
+      }
+      if (this.selectedBuildItem.sides.length === this.maxSides){
+        //this.orders.push({ ...this.selectedBuildItem });
+        this.selectedBuildItem = null;
+        this.isSelectingEntrees = false;
+        this.isSelectingSides = false;
+      }
+    },
+    addToCart() {
+      this.resetSelection();
+    },
+    resetSelection() {
+      this.selectedBuildItem = null;
+      this.isSelectingEntrees = false;
+      this.isSelectingSides = false;
     },
     goBack() {
+      if (this.selectedBuildItem) {
+        this.selectedBuildItem.entrees = [];
+        this.entreeList = [];
+        this.selectedBuildItem.description = '';
+        this.selectedBuildItem.price = this.buildItems.find(
+          (item) => item.name === this.selectedBuildItem.name
+        ).price;
+      }
       this.isSelectingEntrees = false;
+      this.isSelectingSides = false;
       this.selectedBuildItem = null;
     },
     goToSidesView() {
@@ -178,51 +251,58 @@ export default {
       this.isSelectingSides = true;
     },
     goBackToEntreeSelection() {
+      if (this.selectedBuildItem) {
+        this.selectedBuildItem.sides = [];
+        this.sideList = [];
+        this.selectedBuildItem.description = this.selectedBuildItem.entrees.join(', ');
+      }
       this.isSelectingEntrees = true;
       this.isSelectingSides = false;
     },
     async placeOrder() {
-  const { orderType, entreeList, sideList } = this;
 
-    // Validate order details
-    if (![0, 1, 2].includes(orderType)) {
+      for (const order of this.orders) {
+        const orderType = order.type;
+        const entrees = order.entrees;
+        const sides = order.sides;
+
+        if (![0, 1, 2].includes(orderType)) {
           alert('Invalid order type. Please select a valid type.');
           return;
-    }
-    if (entreeList.length === 0) {
-        alert('Please add at least one entree.');
-        return;
-    }
-    if ((orderType === 0 && entreeList.length != 1) ||
-        (orderType === 1 && entreeList.length != 2) ||
-        (orderType === 2 && entreeList.length != 3)) {
-        alert("Invalid number of entrees.");
-        return;
-    }
-    if (sideList.length === 0) {
-        alert('Please add at least one side.');
-        return;
-    }
-    if (sideList.length != 1) {
-        alert("Too many sides.");
-        return;
-    }
+        }
+        if (entrees.length === 0) {
+            alert('Please add at least one entree.');
+            return;
+        }
+        if ((orderType === 0 && entrees.length != 1) ||
+            (orderType === 1 && entrees.length != 2) ||
+            (orderType === 2 && entrees.length != 3)) {
+            alert("Invalid number of entrees.");
+            return;
+        }
+        if (sides.length === 0) {
+            alert('Please add at least one side.');
+            return;
+        }
+        if (sides.length > 2) {
+            alert("Too many sides.");
+            return;
+        }
 
-    try {
-      // Send order data to the server
-      const response = await axios.post('/api/customers/place-order', {
-        order_type: orderType,
-        entrees: entreeList,
-        sides: sideList
-      });
-
-      // Handle successful order placement
-      alert(response.data.message);
+        try {
+        // Send order data to the server
+          await axios.post('/api/customers/place-order', {
+            order_type: orderType,
+            entrees: entrees,
+            sides: sides
+          });
+          } catch (error) {
+            console.error('Error placing order:', error); 
+            alert('Failed to place order. Please try again.');
+          }
+      }  
+      alert("Order Placed Successfully")
       this.resetOrder(); // Reset order summary if needed
-    } catch (error) {
-      console.error('Error placing order:', error);
-      alert('Failed to place order. Please try again.');
-    }
   },
   
   // Reset order after placing (optional)
@@ -325,12 +405,15 @@ export default {
 
 /* Entree and Sides selection styling */
 .entree-selection,
-.side-selection { /* Matching styles for entree and side selection */
+.side-selection {
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding: 20px;
   align-items: center;
+  height: 100%; /* Ensures the section takes full height */
+  overflow-y: auto; /* Enables scrolling */
+  max-height: 90vh; /* Optional: limit the height to a portion of the viewport */
 }
 
 .entrees,
@@ -339,6 +422,7 @@ export default {
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
+
 
 .back-button {
   align-self: flex-start;
@@ -350,5 +434,30 @@ export default {
   border: none;
   border-radius: 5px;
 }
+
+.add-to-cart {
+  margin-top: 20px;
+  padding: 12px 24px;
+  background-color: #ff0000;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.add-to-cart:hover {
+  background-color: #fe0000;
+  transform: scale(1.05);
+}
+.add-to-cart {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.add-to-cart:active{
+  background-color: #e63900;
+  transform: scale(1);
+}
+
 </style>
 

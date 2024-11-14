@@ -11,13 +11,14 @@ class CustomerService {
      * @param {number} order_type - 0 if bowl, 1 if plate, 2 if bigger plate
      * @param {Array} entrees - All entrees that make up this order, do not include sides here
      * @param {Array} sides - All sides that make up this order, do not include entrees here
+     * @param {number} server - Put 1 for customers, else put the id of the cashier 
      */
-    async placeOrder(order_type, entrees, sides) {
+    async placeOrder(order_type, entrees, sides, server=1) {
         const query = `
             INSERT INTO orders (id, server, price, type, timestamp)
             VALUES ($1, $2, $3, $4, $5);
         `;
-        const id = await this.#getMaxId("orders") + 1;
+        const id = await this.getMaxId("orders") + 1;
         let price = 0;
         
         switch (order_type) {
@@ -34,7 +35,7 @@ class CustomerService {
         const timestamp = new Date();
 
         try {
-            await this.pool.query(query, [id, 1, price, order_type, timestamp]);
+            await this.pool.query(query, [id, server, price, order_type, timestamp]);
         }
         catch (error) {
             console.error("error placing order", error);
@@ -81,6 +82,24 @@ class CustomerService {
         catch (error) {
             console.error("error getting sides", error);
         }  
+    }
+
+    /**
+     * Gets maximum id from specified table
+     * @param {string} table_name - name of table in db
+     * @returns max id as an integer
+     */
+    async getMaxId(table_name) {
+        const query = `SELECT MAX(id) FROM ${table_name};`;
+        let max_id = -1;
+        try {
+            const {rows} = await this.pool.query(query);
+            max_id = rows[0].max;
+        }
+        catch (error) {
+            console.error(error);
+        }
+        return max_id;  
     }
 
     /**
@@ -162,7 +181,7 @@ class CustomerService {
         const select_query = `SELECT id FROM menuitems WHERE name = ANY($1)`;
 
         try { 
-            let id = await this.#getMaxId('menuitemsorders');
+            let id = await this.getMaxId('menuitemsorders');
             const {rows} = await this.pool.query(select_query, [items]);
 
             const insert_query = `
@@ -200,18 +219,6 @@ class CustomerService {
         return price;
     }
 
-    async #getMaxId(table_name) {
-        const query = `SELECT MAX(id) FROM ${table_name};`;
-        let max_id = -1;
-        try {
-            const {rows} = await this.pool.query(query);
-            max_id = rows[0].max;
-        }
-        catch (error) {
-            console.error(error);
-        }
-        return max_id;  
-    }
 }
 
 export default CustomerService;
