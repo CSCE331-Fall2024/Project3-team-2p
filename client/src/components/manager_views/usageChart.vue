@@ -3,11 +3,20 @@
         <h2>Ingredient Usage Over Time</h2>
         <div class="graph-div">
             <canvas id="ingredient-usage-chart"></canvas>
-            <select v-model="selectedIngredient" size="10">
-                <option v-for="ingredient in ingredients" :key="ingredient.id" :value="ingredient.name">
-                    {{ ingredient.name }}
-                </option>
-            </select>
+            <div class="selection-div">
+                <div class="date-selectors">
+                    <label>Start Date:</label>
+                    <input class="selection-element" type="date" v-model="startDate" @change="updateChart">
+                    <label>End Date:</label>
+                    <input class="selection-element" type="date" v-model="endDate" @change="updateChart">
+                </div>
+                <select v-model="selectedIngredient">
+                    <option v-for="ingredient in ingredients" :key="ingredient.id" :value="ingredient.name">
+                        {{ ingredient.name }}
+                    </option>
+                </select>
+                <button class="send-button">Send</button>
+            </div>
         </div>
     </div>
 </template>
@@ -21,6 +30,8 @@ export default {
     setup() {
         const chartRef = ref(null);
         const selectedIngredient = ref('');
+        const startDate = ref('');
+        const endDate = ref('');
 
         const ingredients = ref([
             { id: 1, name: 'Chicken' },
@@ -70,6 +81,7 @@ export default {
         onMounted(() => {
             selectedIngredient.value = ingredients.value[0].name;
             const ctx = document.getElementById('ingredient-usage-chart').getContext('2d');
+            
             chartRef.value = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -87,6 +99,7 @@ export default {
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false, // This allows the chart to resize correctly
                     plugins: {
                         legend: {
                             display: true,
@@ -127,12 +140,18 @@ export default {
                     },
                 },
             });
+
+            window.addEventListener('resize', () => {
+                chartRef.value.resize();
+            });
         });
 
         return {
             chartRef,
             ingredients,
             selectedIngredient,
+            startDate,
+            endDate,
         };
     },
 };
@@ -147,12 +166,32 @@ h2 {
 canvas {
     display: block;
     flex-grow: 1;
-    max-width: 88%;
+    max-width: 80%;
 }
 
 select {
-    width: 10%;
     margin: auto;
+}
+
+.selection-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 20%;
+    margin: auto;
+}
+
+.date-selectors {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 20px;
+    color: white;
+    gap: 10px;
+}
+
+.selection-element {
+    max-width: 90%;
 }
 
 .graph-div {
@@ -160,5 +199,20 @@ select {
     align-items: flex-start;
     justify-content: space-between;
     width: 100%;
+}
+
+.send-button {
+    background-color: white;
+    color: black;
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.send-button:hover {
+    background-color: #f1f1f1;
 }
 </style>
