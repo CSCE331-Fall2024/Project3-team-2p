@@ -1,0 +1,145 @@
+{
+    "Orange Chicken": {
+        "Ingredients": {
+            "Orange Sauce": 300,
+            "Chicken": 100
+        },
+        "Additional Cost": 0,
+        "Entree": 1
+    },
+    "Honey Walnut Shrimp": {
+        "Ingredients": {
+            "Honey": 100,
+            "Walnuts": 50,
+            "Shrimp": 100
+        },
+        "Additional Cost": 2.00,
+        "Entree": 1
+    },
+    "Teriyaki Chicken": {
+        "Ingredients": {
+            "Sauce": 100,
+            "Chicken": 200
+        },
+        "Additional Cost": 0,
+        "Entree": 1
+    },
+    "Broccoli Beef": {
+        "Ingredients": {
+            "Broccoli": 200,
+            "Beef": 100
+        },
+        "Additional Cost": 0,
+        "Entree": 1
+    },
+    "Beijing Beef": {
+        "Ingredients": {
+            "Sweet and Sour Sauce": 100,
+            "Pepper": 50,
+            "Onion": 50,
+            "Beef": 100
+        },
+        "Additional Cost": 0,
+        "Entree": 1
+    },
+    "Hot Ones Blazing Bourbon Chicken": {
+        "Ingredients": {
+            "Bourbon Sauce": 100,
+            "Pepper": 50,
+            "Onion": 50,
+            "Chicken": 100
+        },
+        "Additional Cost": 0,
+        "Entree": 1
+    },
+    "Black Pepper Sirloin Steak": {
+        "Ingredients": {
+            "Broccoli": 50,
+            "Mushroom": 50,
+            "Black Pepper": 10,
+            "Beef": 100
+        },
+        "Additional Cost": 2.00,
+        "Entree": 1
+    },
+    "Honey Sesame Chicken": {
+        "Ingredients": {
+            "Honey": 100,
+            "Sesame": 20,
+            "Chicken": 100,
+            "Pepper": 50
+        },
+        "Additional Cost": 0,
+        "Entree": 1
+    },
+    "Mushroom Chicken": {
+        "Ingredients": {
+            "Mushroom": 100,
+            "Chicken": 100
+        },
+        "Additional Cost": 0,
+        "Entree": 1
+    },
+    "Sweet Fire Chicken Breast": {
+        "Ingredients": {
+            "Chicken": 100,
+            "Onion": 50,
+            "Pepper": 50,
+            "Pineapple": 50
+        },
+        "Additional Cost": 0,
+        "Entree": 1
+    },
+    "String Bean Chicken Breast": {
+        "Ingredients": {
+            "String Bean": 50,
+            "Chicken": 100,
+            "Onion": 50
+        },
+        "Additional Cost": 0,
+        "Entree": 1
+    },
+    "Black Pepper Chicken": {
+        "Ingredients": {
+            "Black Pepper": 20,
+            "Chicken": 100,
+            "Pepper": 50,
+            "Onion": 50
+        },
+        "Additional Cost": 0,
+        "Entree": 1
+    },
+    "Super Greens": {
+        "Ingredients": {
+            "Broccoli": 50,
+            "Bok Choy": 50
+        },
+        "Additional Cost": 0,
+        "Entree": 0
+    },
+    "Chow Mein": {
+        "Ingredients": {
+            "Noodles": 200,
+            "Onion": 50,
+            "Celery": 50
+        },
+        "Additional Cost": 0,
+        "Entree": 0
+    },
+    "Fried Rice": {
+        "Ingredients": {
+            "White Rice": 200,
+            "Peas": 50,
+            "Corn": 50
+        },
+        "Additional Cost": 0,
+        "Entree": 0
+    },
+    "White Rice": {
+        "Ingredients": {
+            "White Rice": 200
+        },
+        "Additional Cost": 0,
+        "Entree": 0
+    }
+}

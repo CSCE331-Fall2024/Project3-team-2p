@@ -5,14 +5,16 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "prod" : "npx serve -s dist",
+    "prod": "npx serve -s dist",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "@vue/compiler-sfc": "^3.5.12",
     "axios": "^1.7.7",
+    "chart.js": "^4.4.6",
     "core-js": "^3.8.3",
     "vue": "^3.2.13",
+    "vue-chartjs": "^5.3.2",
     "vue-router": "^4.4.5"
   },
   "devDependencies": {
