@@ -47,6 +47,15 @@ export default {
             ],
         });
 
+        const setDefaultDates = () => {
+            const today = new Date();
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(today.getDate() - 7);
+
+            startDate.value = sevenDaysAgo.toISOString().split('T')[0];
+            endDate.value = today.toISOString().split('T')[0];
+        };
+
         const fetchIngredients = async () => {
             try {
                 const response = await axios.get('/api/inventory/ingredients');
@@ -138,6 +147,7 @@ export default {
 
         onMounted(() => {
             fetchIngredients();
+            setDefaultDates();
         });
 
         window.addEventListener('resize', () => {
