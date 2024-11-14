@@ -41,6 +41,7 @@ class CustomerService {
         }
         const menu_items_keys = await this.#updateMenuItemsOrdersTable(entrees, sides, id);
         await this.#updateIngredientsTable(menu_items_keys);
+        await this.#updateIngredientUsageTable(menu_items_keys, timestamp);
         console.log("order placed successfully");
     }
 
@@ -88,6 +89,42 @@ class CustomerService {
      */
     close() {
         return this.pool.end();
+    }
+
+
+    /**
+     * There is a table called ingredientusage which is used for analytics
+     * This function is used to update that table
+     * @param {Array<Number>} menu_items_keys - the keys of the menu items
+     * @param {Date} order_date - the date of the order used to find the right bucket
+     */
+    async #updateIngredientUsageTable(menu_items_keys, order_date) {
+        try {
+            const ingredientUsageQuery = `
+                SELECT i.id AS ingredient_id, SUM(im.quantity) AS total_usage
+                FROM IngredientsMenuItems im
+                JOIN Ingredients i ON i.id = im.IngredientKey
+                WHERE im.MenuItemKey = ANY($1::int[])
+                GROUP BY i.id;
+            `;
+    
+            const ingredientUsages = await this.pool.query(ingredientUsageQuery, [menu_items_keys]);
+    
+            for (const usage of ingredientUsages.rows) {
+                const { ingredient_id, total_usage } = usage;
+    
+                const updateQuery = `
+                    INSERT INTO ingredientusage (ingredient_id, date, usage)
+                    VALUES ($1, $2, $3)
+                    ON CONFLICT (ingredient_id, date)
+                    DO UPDATE SET usage = ingredientusage.usage + EXCLUDED.usage;
+                `;
+    
+                await this.pool.query(updateQuery, [ingredient_id, order_date, total_usage]);
+            }
+        } catch (error) {
+            console.error('Error updating ingredient usage data:', error);
+        }
     }
 
     async #updateIngredientsTable(menu_items_keys) {
