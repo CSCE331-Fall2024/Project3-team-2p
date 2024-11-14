@@ -131,7 +131,7 @@ export default {
       ],
       buildItems: [
         { name: "Bowl", price: "$8.99", type: 0 },
-        { name: "Plate", price: "$10.99", type: 1 },
+        { name: "Plate", price: "$9.99", type: 1 },
         { name: "Bigger Plate", price: "$11.99", type: 2 },
       ],
       entrees: [],
