@@ -1,22 +1,29 @@
 <template>
     <div class="main-page">
-        <h1>Manager Dashboard</h1>
+        <h1 class="title">Manager Dashboard</h1>
+        <div class="table-container">
+            <IngredientUsageChart/>
+        </div>
         <router-link :to="{ name: 'ManagerMenu' }">
-            <button>Go to Menu</button>
+            <button class="action-button">Go to Menu</button>
         </router-link>
         <router-link :to="{ name: 'ManagerInventory' }">
-            <button>Go to Inventory</button>
+            <button class="action-button">Go to Inventory</button>
         </router-link>
         <router-link :to="{ name: 'ManagerEmployees' }">
-            <button>Go to Employees</button>
+            <button class="action-button">Go to Employees</button>
         </router-link>
     </div>
     <router-view></router-view>
 </template>
 
 <script>
+import IngredientUsageChart from './usageChart.vue';
 export default {
-    name: 'ManagerHome'
+    name: 'ManagerHome',
+    components: {
+        IngredientUsageChart,
+    },
 };
 </script>
 
@@ -26,8 +33,13 @@ export default {
     height: 100%;
 }
 
-.inventory-dashboard, .main-page {
-    background-color: #cc3333;
+.title {
+    color: #EFF6EE;
+}
+
+.inventory-dashboard,
+.main-page {
+    background-color: #F02D3A;
     padding: 20px;
     text-align: center;
     min-height: 100vh;
@@ -36,7 +48,7 @@ export default {
 .inventory-table {
     width: 100%;
     margin: auto;
-    background-color: #333;
+    background-color: #273043;
     color: white;
     border-collapse: collapse;
 }
@@ -55,7 +67,8 @@ export default {
     max-width: 60vw;
     overflow-y: auto;
     margin: auto;
-    background-color: #333;
+    background-color: #273043;
+    border-radius: 5px;
 }
 
 .button-group {
@@ -63,7 +76,7 @@ export default {
 }
 
 .action-button {
-    background-color: white;
+    background-color: #EFF6EE;
     color: black;
     padding: 10px 20px;
     margin: 5px;
@@ -74,7 +87,7 @@ export default {
 }
 
 .action-button:hover {
-    background-color: #f1f1f1;
+    background-color: #EFF6EEBB;
 }
 
 .selected {
