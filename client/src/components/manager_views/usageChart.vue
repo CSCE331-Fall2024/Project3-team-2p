@@ -6,16 +6,15 @@
             <div class="selection-div">
                 <div class="date-selectors">
                     <label>Start Date:</label>
-                    <input class="selection-element" type="date" v-model="startDate" @change="updateChart">
+                    <input class="selection-element" type="date" v-model="startDate" @change="fetchUsageData">
                     <label>End Date:</label>
-                    <input class="selection-element" type="date" v-model="endDate" @change="updateChart">
+                    <input class="selection-element" type="date" v-model="endDate" @change="fetchUsageData">
                 </div>
-                <select v-model="selectedIngredient">
-                    <option v-for="ingredient in ingredients" :key="ingredient.id" :value="ingredient.name">
+                <select v-model="selectedIngredient" @change="fetchUsageData">
+                    <option v-for="ingredient in ingredients" :key="ingredient.id" :value="ingredient">
                         {{ ingredient.name }}
                     </option>
                 </select>
-                <button class="send-button">Send</button>
             </div>
         </div>
     </div>
@@ -24,82 +23,76 @@
 <script>
 import { ref, onMounted } from 'vue';
 import Chart from 'chart.js/auto';
+import axios from 'axios';
 
 export default {
     name: 'IngredientUsageChart',
     setup() {
         const chartRef = ref(null);
-        const selectedIngredient = ref('');
+        const selectedIngredient = ref(null);
         const startDate = ref('');
         const endDate = ref('');
+        const ingredients = ref([]);
+        const chartData = ref({
+            labels: [],
+            datasets: [
+                {
+                    label: 'Usage Amount',
+                    data: [],
+                    borderColor: 'rgb(66, 165, 245)',
+                    backgroundColor: 'rgba(66, 165, 245, 0.2)',
+                    fill: true,
+                    tension: 0.2,
+                },
+            ],
+        });
 
-        const ingredients = ref([
-            { id: 1, name: 'Chicken' },
-            { id: 2, name: 'Beef' },
-            { id: 3, name: 'Rice' },
-            { id: 4, name: 'Shrimp' },
-            { id: 1, name: 'Chicken' },
-            { id: 2, name: 'Beef' },
-            { id: 3, name: 'Rice' },
-            { id: 4, name: 'Shrimp' },
-            { id: 1, name: 'Chicken' },
-            { id: 2, name: 'Beef' },
-            { id: 3, name: 'Rice' },
-            { id: 4, name: 'Shrimp' },
-            { id: 1, name: 'Chicken' },
-            { id: 2, name: 'Beef' },
-            { id: 3, name: 'Rice' },
-            { id: 4, name: 'Shrimp' },
-            { id: 1, name: 'Chicken' },
-            { id: 2, name: 'Beef' },
-            { id: 3, name: 'Rice' },
-            { id: 4, name: 'Shrimp' },
-            { id: 1, name: 'Chicken' },
-            { id: 2, name: 'Beef' },
-            { id: 3, name: 'Rice' },
-            { id: 4, name: 'Shrimp' },
-            { id: 1, name: 'Chicken' },
-            { id: 2, name: 'Beef' },
-            { id: 3, name: 'Rice' },
-            { id: 4, name: 'Shrimp' },
-            { id: 1, name: 'Chicken' },
-            { id: 2, name: 'Beef' },
-            { id: 3, name: 'Rice' },
-            { id: 4, name: 'Shrimp' },
-        ]);
+        const fetchIngredients = async () => {
+            try {
+                const response = await axios.get('/api/inventory/ingredients');
+                ingredients.value = response.data;
+                selectedIngredient.value = ingredients.value[0] || null;
+                fetchUsageData();
+            } catch (error) {
+                console.error('Failed to fetch ingredients:', error);
+            }
+        };
 
-        const mockData = [
-            { date: '2024-11-01', amount: 50 },
-            { date: '2024-11-02', amount: 30 },
-            { date: '2024-11-03', amount: 40 },
-            { date: '2024-11-04', amount: 60 },
-            { date: '2024-11-05', amount: 20 },
-            { date: '2024-11-06', amount: 70 },
-            { date: '2024-11-07', amount: 50 },
-        ];
+        const fetchUsageData = async () => {
+            if (!selectedIngredient.value) return;
 
-        onMounted(() => {
-            selectedIngredient.value = ingredients.value[0].name;
+            try {
+                const response = await axios.get('/api/analytics/ingredient-usage', {
+                    params: {
+                        id: selectedIngredient.value.id,
+                        startDate: startDate.value,
+                        endDate: endDate.value,
+                    },
+                });
+
+                const usageData = response.data;
+
+                console.log(usageData);
+                chartData.value.labels = usageData.map(item => new Date(item.date).toISOString().split('T')[0]);
+                chartData.value.datasets[0].data = usageData.map(item => item.amount);
+                updateChart();
+            } catch (error) {
+                console.error('Failed to fetch usage data:', error);
+            }
+        };
+
+        const updateChart = () => {
+            if (chartRef.value) {
+                chartRef.value.destroy();
+            }
+
             const ctx = document.getElementById('ingredient-usage-chart').getContext('2d');
-            
             chartRef.value = new Chart(ctx, {
                 type: 'line',
-                data: {
-                    labels: mockData.map(item => item.date),
-                    datasets: [
-                        {
-                            label: 'Usage Amount',
-                            data: mockData.map(item => item.amount),
-                            borderColor: 'rgb(66, 165, 245)',
-                            backgroundColor: 'rgba(66, 165, 245, 0.2)',
-                            fill: true,
-                            tension: 0.2,
-                        },
-                    ],
-                },
+                data: chartData.value,
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false, // This allows the chart to resize correctly
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
                             display: true,
@@ -140,10 +133,17 @@ export default {
                     },
                 },
             });
+        };
 
-            window.addEventListener('resize', () => {
+
+        onMounted(() => {
+            fetchIngredients();
+        });
+
+        window.addEventListener('resize', () => {
+            if (chartRef.value) {
                 chartRef.value.resize();
-            });
+            }
         });
 
         return {
@@ -152,6 +152,7 @@ export default {
             selectedIngredient,
             startDate,
             endDate,
+            fetchUsageData,
         };
     },
 };
