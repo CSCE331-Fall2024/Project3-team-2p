@@ -5,7 +5,7 @@
       <!-- Build Your Own section, only visible if no meal type is selected -->
       <!-- Important: This is also visible if you have added one order, but also want to continue -->
       <div v-if="!selectedBuildItem">
-        <h2>Build Your Own</h2>
+        <h2 class="labels">Build Your Own</h2>
         <div class="build-your-own">
           <div
             v-for="item in buildItems"
@@ -22,7 +22,7 @@
       <!-- Side Selection View -->
       <div v-if="isSelectingSides" class="side-selection">
         <button @click="goBackToEntreeSelection" class="back-button">⬅ Back</button>
-        <h2>Select up to 2 Sides for {{ selectedBuildItem.name }}</h2>
+        <h2 class="labels">Select up to 2 Sides for {{ selectedBuildItem.name }}</h2>
         <div class="sides">
           <div
             v-for="side in sides"
@@ -50,7 +50,7 @@
       <!-- Entree selection view with scrollable grid -->
       <div v-else-if="isSelectingEntrees" class="entree-selection">
         <button @click="goBack" class="back-button">⬅ Back</button>
-        <h2>Select Entrees for {{ selectedBuildItem.name }}</h2>
+        <h2 class="labels">Select Entrees for {{ selectedBuildItem.name }}</h2>
         <div class="entrees">
           <div
             v-for="entree in entrees"
@@ -357,5 +357,8 @@ export default {
 }
 .back-button:hover, .add-to-cart:hover {
   background-color: #555;
+}
+.labels {
+  color: black;
 }
 </style>
