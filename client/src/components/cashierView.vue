@@ -2,6 +2,9 @@
   <div class="app-container">
     <!-- Left side: Build Your Own section -->
     <div class="left-side">
+      <router-link :to="{ name: 'customerView' }">
+        <button class="remove-button">Logout</button>
+      </router-link>
       <!-- Build Your Own section, only visible if no meal type is selected -->
       <!-- Important: This is also visible if you have added one order, but also want to continue -->
       <div v-if="!selectedBuildItem">

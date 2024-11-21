@@ -42,14 +42,14 @@ router.get(
     } else if (role === 'cashier') {
       res.redirect(process.env.FRONTENDURL + 'cashier');
     } else {
-      res.redirect('/');
+      res.redirect(process.env.FRONTENDURL);
     }
   }
 );
 
 router.get('/logout', (req, res) => {
     req.logout();
-    res.redirect('/');
+    res.redirect(process.env.FRONTENDURL);
   });
   
 export default router;
