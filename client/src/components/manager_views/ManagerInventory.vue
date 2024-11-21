@@ -3,6 +3,9 @@
         <router-link :to="{ name: 'ManagerHome' }">
             <button class="action-button">Go to Home</button>
         </router-link>
+        <router-link :to="{ name: 'customerView' }">
+            <button class="action-button">Logout</button>
+        </router-link>
         <div class="table-container">
             <table class="inventory-table">
                 <thead>

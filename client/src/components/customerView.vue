@@ -2,9 +2,11 @@
   <div class="app-container">
     <!-- Left side: Main view or Entree selection view -->
     <div class="left-side">
+      <button class="login-buttons" @click="loginAsManager">Login as Manager</button>
+      <button class="login-buttons" @click="loginAsCashier">Login as Cashier</button>
       <div v-if="!isSelectingEntrees && !isSelectingSides">
         <!-- Suggested Orders section -->
-        <h2>Suggested Orders</h2>
+        <h2 class="labels">Suggested Orders</h2>
         <div class="suggested-orders">
           <div
             v-for="order in suggestedOrders" 
@@ -20,7 +22,7 @@
         </div>
 
         <!-- Build Your Own section -->
-        <h2>Build Your Own</h2>
+        <h2 class="labels">Build Your Own</h2>
         <div class="build-your-own">
           <div
             v-for="item in buildItems" 
@@ -37,7 +39,7 @@
       <!-- Side Selection View -->
       <div v-else-if="isSelectingSides" class="side-selection">
         <button @click="goBackToEntreeSelection" class="back-button">⬅ Back</button>
-        <h2>Select up to 2 Sides for {{ selectedBuildItem.name }}</h2>
+        <h2 class="labels">Select up to 2 Sides for {{ selectedBuildItem.name }}</h2>
         <div class="sides">
           <div
             v-for="side in sides" 
@@ -59,7 +61,7 @@
       <!-- Entree selection view -->
       <div v-else class="entree-selection">
         <button @click="goBack" class="back-button">⬅ Back</button>
-        <h2>Select Entrees for {{ selectedBuildItem.name }}</h2>
+        <h2 class="labels">Select Entrees for {{ selectedBuildItem.name }}</h2>
         <div class="entrees">
           <div
             v-for="entree in entrees" 
@@ -314,7 +316,16 @@ export default {
     this.selectedBuildItem = null;
     this.isSelectingEntrees = false;
     this.isSelectingSides = false;
+  },
+
+  async loginAsManager() {
+    window.location.href = process.env.VUE_APP_BASE_URL + 'auth/google?role=manager';
+  },
+
+  async loginAsCashier() {
+    window.location.href = process.env.VUE_APP_BASE_URL + 'auth/google?role=cashier';
   }
+
 
   },
 };
@@ -349,6 +360,10 @@ export default {
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin-bottom: 20px;
+}
+
+.labels {
+  color: black;
 }
 
 .suggested-order,
@@ -457,6 +472,17 @@ export default {
 .add-to-cart:active{
   background-color: #e63900;
   transform: scale(1);
+}
+.login-buttons{
+  align-self: flex-start;
+  padding: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  margin-right: 10px;
 }
 
 </style>
