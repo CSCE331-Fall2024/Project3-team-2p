@@ -7,8 +7,8 @@ const router = express.Router();
 passport.use(
     new GoogleStrategy (
       {
-        clientID: '1014550138183-3oqai7vj80vsbjg7v86falob0v23nuvr.apps.googleusercontent.com',
-        clientSecret: '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',
+        clientID: process.env.CLIENTID,
+        clientSecret: process.env.CLIENTSECRET,
         callbackURL: '/auth/google/callback',
       },
       (accessToken, refreshToken, profile, done) => {
@@ -21,13 +21,29 @@ passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
 // Authentication Routes
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', (req, res, next) => {
+  const role = req.query.role || 'default';
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    state: JSON.stringify({ role }),
+  })(req, res, next);
+});
 
 router.get(
   '/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   (req, res) => {
-    res.redirect('/'); // Redirect to app after login
+    // Extract the role from the state
+    const state = JSON.parse(req.query.state || '{}');
+    const role = state.role || 'default';
+
+    if (role === 'manager') {
+      res.redirect(process.env.FRONTENDURL + 'manager');
+    } else if (role === 'cashier') {
+      res.redirect(process.env.FRONTENDURL + 'cashier');
+    } else {
+      res.redirect('/');
+    }
   }
 );
 

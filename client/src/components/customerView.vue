@@ -2,6 +2,8 @@
   <div class="app-container">
     <!-- Left side: Main view or Entree selection view -->
     <div class="left-side">
+      <button class="login-buttons" @click="loginAsManager">Login as Manager</button>
+      <button class="login-buttons" @click="loginAsCashier">Login as Cashier</button>
       <div v-if="!isSelectingEntrees && !isSelectingSides">
         <!-- Suggested Orders section -->
         <h2 class="labels">Suggested Orders</h2>
@@ -314,7 +316,16 @@ export default {
     this.selectedBuildItem = null;
     this.isSelectingEntrees = false;
     this.isSelectingSides = false;
+  },
+
+  async loginAsManager() {
+    window.location.href = process.env.VUE_APP_BASE_URL + 'auth/google?role=manager';
+  },
+
+  async loginAsCashier() {
+    window.location.href = process.env.VUE_APP_BASE_URL + 'auth/google?role=cashier';
   }
+
 
   },
 };
@@ -461,6 +472,17 @@ export default {
 .add-to-cart:active{
   background-color: #e63900;
   transform: scale(1);
+}
+.login-buttons{
+  align-self: flex-start;
+  padding: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  margin-right: 10px;
 }
 
 </style>

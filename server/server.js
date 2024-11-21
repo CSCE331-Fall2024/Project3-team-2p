@@ -33,13 +33,12 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/customers', customerRoutes);
-app.use('/auth', oauthRoutes);  
-
-app.use(ensureAuthenticated);
-
+app.use('/auth', oauthRoutes); 
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/analytics', analyticsRoutes);
-app.use('/api/cashier', cashierRoutes);
+app.use('/api/cashier', cashierRoutes); 
+
+app.use(ensureAuthenticated);
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
