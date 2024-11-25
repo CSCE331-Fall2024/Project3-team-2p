@@ -17,13 +17,13 @@
             </div>
             <div class="button-panel">
                 <router-link :to="{ name: 'ManagerMenu' }">
-                    <button class="action-button">Go to Menu</button>
+                    <button class="action-button">Manage Menu</button>
                 </router-link>
                 <router-link :to="{ name: 'ManagerInventory' }">
-                    <button class="action-button">Go to Inventory</button>
+                    <button class="action-button">Manage Inventory</button>
                 </router-link>
                 <router-link :to="{ name: 'ManagerEmployees' }">
-                    <button class="action-button">Go to Employees</button>
+                    <button class="action-button">Manage Employees</button>
                 </router-link>
                 <router-link :to="{ name: 'customerView' }">
                     <button class="action-button">Logout</button>
