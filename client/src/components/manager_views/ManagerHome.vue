@@ -1,25 +1,35 @@
 <template>
     <div class="main-page">
-        <h1 class="title">Manager Dashboard</h1>
-        <div v-if="weather" class="weather-container">
-            <p>Current Weather in {{ city }}, {{ region }}</p>
-            <p>{{ weather.weather[0].description }} - {{ weather.main.temp }}°C</p>
+        <div class="main-content">
+            <div v-if="weather" class="weather-container">
+                <p>Current Weather in {{ city }}, {{ region }}</p>
+                <p>{{ weather.weather[0].description }} - {{ weather.main.temp }}°F</p>
+            </div>
+            <div class="middle-div">
+                <h1 class="title">Manager Dashboard</h1>
+                <div class="table-container">
+                    <IngredientUsageChart />
+                </div>
+                <div class="button-row">
+                    <button class="action-button">Generate X report</button>
+                    <button class="action-button">Generate Z report</button>
+                </div>
+            </div>
+            <div class="button-panel">
+                <router-link :to="{ name: 'ManagerMenu' }">
+                    <button class="action-button">Go to Menu</button>
+                </router-link>
+                <router-link :to="{ name: 'ManagerInventory' }">
+                    <button class="action-button">Go to Inventory</button>
+                </router-link>
+                <router-link :to="{ name: 'ManagerEmployees' }">
+                    <button class="action-button">Go to Employees</button>
+                </router-link>
+                <router-link :to="{ name: 'customerView' }">
+                    <button class="action-button">Logout</button>
+                </router-link>
+            </div>
         </div>
-        <div class="table-container">
-            <IngredientUsageChart />
-        </div>
-        <router-link :to="{ name: 'ManagerMenu' }">
-            <button class="action-button">Go to Menu</button>
-        </router-link>
-        <router-link :to="{ name: 'ManagerInventory' }">
-            <button class="action-button">Go to Inventory</button>
-        </router-link>
-        <router-link :to="{ name: 'ManagerEmployees' }">
-            <button class="action-button">Go to Employees</button>
-        </router-link>
-        <router-link :to="{ name: 'customerView' }">
-            <button class="action-button">Logout</button>
-        </router-link>
     </div>
     <router-view></router-view>
 </template>
@@ -82,7 +92,7 @@ export default {
 }
 
 .title {
-    color: #EFF6EE;
+    color: white;
 }
 
 .inventory-dashboard,
@@ -112,11 +122,20 @@ export default {
 
 .table-container {
     max-height: 75vh;
-    max-width: 60vw;
+    width: 60vw;
     overflow-y: auto;
-    margin: auto;
+    margin: 0 auto;
     background-color: #273043;
     border-radius: 5px;
+}
+
+.middle-div {
+    z-index: 11;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    /* transform: translateY(-50%); */
 }
 
 .button-group {
@@ -132,10 +151,12 @@ export default {
     border: none;
     cursor: pointer;
     border-radius: 5px;
+    transition: .2s ease;
 }
 
 .action-button:hover {
-    background-color: #EFF6EEBB;
+    background-color: #EFF6EEDD;
+    transform: scale(1.1);
 }
 
 .selected {
@@ -154,8 +175,28 @@ export default {
     color: white;
     padding: 10px;
     border-radius: 5px;
-    margin: 20px auto;
+    /* margin: 20px auto; */
     max-width: 15vw;
     text-align: center;
+    /* top: 10%; */
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.main-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.button-panel {
+    display: flex;
+    flex-direction: column;
+    z-index: 12;
+    position: absolute;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 15vw;
 }
 </style>
