@@ -2,7 +2,7 @@
     <div class="main-page">
         <h1 class="title">Manager Dashboard</h1>
         <div class="table-container">
-            <IngredientUsageChart/>
+            <IngredientUsageChart />
         </div>
         <router-link :to="{ name: 'ManagerMenu' }">
             <button class="action-button">Go to Menu</button>
@@ -16,19 +16,64 @@
         <router-link :to="{ name: 'customerView' }">
             <button class="action-button">Logout</button>
         </router-link>
+        <div v-if="weather" class="weather-container">
+            <p>Current Weather in {{ city }}, {{ region }}</p>
+            <p>{{ weather.weather[0].description }} - {{ weather.main.temp }}°C</p>
+        </div>
     </div>
     <router-view></router-view>
 </template>
 
 <script>
 import IngredientUsageChart from './usageChart.vue';
+import axios from 'axios';
+
 export default {
     name: 'ManagerHome',
     components: {
         IngredientUsageChart,
     },
+    data() {
+        return {
+            city: null,
+            region: null,
+            weather: null,
+        };
+    },
+    mounted() {
+        this.fetchWeather();
+    },
+    methods: {
+        async fetchWeather() {
+            try {
+                const locationResponse = await axios.get('https://ipapi.co/json/');
+                const { latitude, longitude, city, region } = locationResponse.data;
+                this.city = city;
+                this.region = region;
+
+                const apiKey = process.env.VUE_APP_OPENWEATHER_API_KEY;
+                //console.log('api key: ', apiKey);
+                const weatherResponse = await axios.get(
+                    `https://api.openweathermap.org/data/2.5/weather`,
+                    {
+                        params: {
+                            lat: latitude,
+                            lon: longitude,
+                            appid: apiKey,
+                            units: 'imperial',
+                        },
+                    }
+                );
+
+                this.weather = weatherResponse.data;
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+            }
+        },
+    },
 };
 </script>
+
 
 <style>
 .template {
@@ -100,5 +145,16 @@ export default {
 .editable-input {
     width: 100%;
     box-sizing: border-box;
+}
+
+.weather-container {
+    background-color: #273043;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 20px auto;
+    max-width: 300px;
+    text-align: center;
+    font-size: 16px;
 }
 </style>
