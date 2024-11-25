@@ -1,6 +1,10 @@
 <template>
     <div class="main-page">
         <h1 class="title">Manager Dashboard</h1>
+        <div v-if="weather" class="weather-container">
+            <p>Current Weather in {{ city }}, {{ region }}</p>
+            <p>{{ weather.weather[0].description }} - {{ weather.main.temp }}°C</p>
+        </div>
         <div class="table-container">
             <IngredientUsageChart />
         </div>
@@ -16,10 +20,6 @@
         <router-link :to="{ name: 'customerView' }">
             <button class="action-button">Logout</button>
         </router-link>
-        <div v-if="weather" class="weather-container">
-            <p>Current Weather in {{ city }}, {{ region }}</p>
-            <p>{{ weather.weather[0].description }} - {{ weather.main.temp }}°C</p>
-        </div>
     </div>
     <router-view></router-view>
 </template>
@@ -148,13 +148,14 @@ export default {
 }
 
 .weather-container {
+    z-index: 10;
+    position: absolute;
     background-color: #273043;
     color: white;
     padding: 10px;
     border-radius: 5px;
     margin: 20px auto;
-    max-width: 300px;
+    max-width: 15vw;
     text-align: center;
-    font-size: 16px;
 }
 </style>
