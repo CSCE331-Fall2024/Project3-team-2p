@@ -8,11 +8,21 @@
     "prod": "npx serve -s dist",
     "lint": "vue-cli-service lint"
   },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "tabWidth": 4,
+    "printWidth": 80
+  },
   "dependencies": {
+    "@google-cloud/translate": "^8.5.0",
     "@vue/compiler-sfc": "^3.5.12",
     "axios": "^1.7.7",
     "chart.js": "^4.4.6",
     "core-js": "^3.8.3",
+    "stream": "^0.0.3",
+    "util": "^0.12.5",
     "vue": "^3.2.13",
     "vue-chartjs": "^5.3.2",
     "vue-router": "^4.4.5"

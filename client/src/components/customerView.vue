@@ -2,6 +2,7 @@
   <div class="app-container">
     <!-- Left side: Main view or Entree selection view -->
     <div class="left-side">
+      <TranslateButton />
       <div v-if="!isSelectingEntrees && !isSelectingSides">
         <!-- Suggested Orders section -->
         <h2>Suggested Orders</h2>
@@ -94,8 +95,12 @@
 
 <script>
 import axios from 'axios';
+import TranslateButton from './TranslateButton.vue';
 axios.defaults.baseURL = process.env.VUE_APP_BASE_URL;
 export default {
+  components: {
+    TranslateButton
+  },
   data() {
     return {
       isSelectingSides: false,
