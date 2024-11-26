@@ -21,39 +21,54 @@
 
 <script>
 import axios from 'axios';
+import { ref, onMounted } from 'vue';
 axios.defaults.baseURL = process.env.VUE_APP_BASE_URL;
 export default {
-    data() {
-        return {
-            date: null,
-            // salesData: [
-            //     {hour: 1, sales_count: 12, total_revenue: 1111},
-            //     {hour: 2, sales_count: 83, total_revenue: 2222},
-            //     {hour: 3, sales_count: 23, total_revenue: 3333},
-            //     {hour: 4, sales_count: 34, total_revenue: 4444},
-            // ],
-            salesData: [],
-        };
-    },
-    mounted() {
-        this.fetchSales();
-    },
-    methods: {
-        async fetchSales() {
+    setup() {
+        const date = ref('');
+        const salesData = ref([]);
+        // data() {
+        //     return {
+        //         date: null,
+        //         // salesData: [
+        //         //     {hour: 1, sales_count: 12, total_revenue: 1111},
+        //         //     {hour: 2, sales_count: 83, total_revenue: 2222},
+        //         //     {hour: 3, sales_count: 23, total_revenue: 3333},
+        //         //     {hour: 4, sales_count: 34, total_revenue: 4444},
+        //         // ],
+        //         salesData: [],
+        //     };
+        // },
+        const fetchSales = async () => {
             try {
                 const today = new Date();
-                this.date = today.toISOString().split('T')[0];
+                date.value = today.toISOString().split('T')[0];
                 const response = await axios.get('/api/analytics/x-report', {
                     params: {
-                        day: '2024-11-26',//this.date.value,
+                        day: date.value,
                     },
                 });
-                this.salesData = response.data;
-                console.log('salesData fetched:', this.salesData);
+                salesData.value = response.data;
+                console.log('salesData fetched:', salesData.value);
             } catch (error) {
                 console.error('Error fetching salesData:', error);
+                // salesData.value = [
+                //     {hour: 1, sales_count: 12, total_revenue: 1111},
+                //     {hour: 2, sales_count: 83, total_revenue: 2222},
+                //     {hour: 3, sales_count: 23, total_revenue: 3333},
+                //     {hour: 4, sales_count: 34, total_revenue: 4444},
+                // ];
             }
-        },
+        }
+
+        onMounted(() => {
+            fetchSales();
+        });
+
+        return {
+            date,
+            salesData,
+        };
     }
 };
 </script>
