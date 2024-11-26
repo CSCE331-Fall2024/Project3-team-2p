@@ -1,6 +1,5 @@
 <template>
     <div class="inventory-dashboard">
-        <!-- <div class="table-container"> -->
             <table class="sales-table">
                 <thead>
                     <tr>
@@ -17,7 +16,6 @@
                     </tr>
                 </tbody>
             </table>
-        <!-- </div> -->
     </div>
 </template>
 
