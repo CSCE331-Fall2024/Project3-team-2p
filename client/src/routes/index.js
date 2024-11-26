@@ -14,7 +14,7 @@ const routes = [
         component: ManagerHome, //Change this to home page to pick between manager and customer views
     },*/
     {
-        path: "/",
+        path: "/Manager",
         name: "ManagerHome",
         component: ManagerHome,
     },
@@ -34,7 +34,7 @@ const routes = [
         component: ManagerEmployees,
     },
     {
-        path: "/Customers",
+        path: "/",
         name: "customerView",
         component: customerView,
     },
