@@ -13,6 +13,9 @@
         <router-link :to="{ name: 'ManagerEmployees' }">
             <button class="action-button">Go to Employees</button>
         </router-link>
+        <router-link :to="{ name: 'customerView' }">
+            <button class="action-button">Logout</button>
+        </router-link>
     </div>
     <router-view></router-view>
 </template>
