@@ -12,22 +12,19 @@
                         <IngredientUsageChart />
                     </div>
                     <div v-if="!xrepHidden">
-                        <XReport />
+                        <XReport :key="'xreport-' + Date.now()" />
                     </div>
                     <div v-if="!zrepHidden">
-                        <XReport />
+                        <XReport :key="'xreport-' + Date.now()" />
                     </div>
                 </div>
                 <div class="button-row">
                     <div>
 
                     </div>
-                    <button v-if="graphHidden" @click="assertView(true, false)" class="action-button">Show Usage
-                        Chart</button>
-                    <button v-if="!graphHidden" @click="assertView(false, true)" class="action-button">Show X
-                        Report</button>
-                    <button v-if="!graphHidden" @click="assertView(false, false)" class="action-button">Show Z
-                        Report</button>
+                    <button v-if="graphHidden" @click="assertView(true, false)" class="action-button">Show Usage Chart</button>
+                    <button v-if="!graphHidden" @click="assertView(false, true)" class="action-button">Show X Report</button>
+                    <button v-if="!graphHidden" @click="assertView(false, false)" class="action-button">Show Z Report</button>
                 </div>
             </div>
             <div class="button-panel">
