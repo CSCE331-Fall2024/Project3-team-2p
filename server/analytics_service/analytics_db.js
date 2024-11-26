@@ -63,7 +63,7 @@ class AnalyticsService {
                 COUNT(o.id) AS sales_count, 
                 SUM(o.price) AS total_revenue 
             FROM orders o 
-            WHERE o.timestamp::date = $1 
+            WHERE DATE(o.timestamp) = $1 
             GROUP BY DATE_TRUNC('hour', o.timestamp) 
             ORDER BY hour;
         `;
@@ -72,7 +72,7 @@ class AnalyticsService {
         const client = await this.pool.connect();
 
         try {
-            const result = await client.query(query, [day]);
+            const result = await client.query(query, [day.date]);
 
             result.rows.forEach(row => {
                 reportData.push({
