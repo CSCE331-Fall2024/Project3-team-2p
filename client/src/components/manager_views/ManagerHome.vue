@@ -8,11 +8,26 @@
             <div class="middle-div">
                 <h1 class="title">Manager Dashboard</h1>
                 <div class="table-container">
-                    <IngredientUsageChart />
+                    <div v-if="!graphHidden">
+                        <IngredientUsageChart />
+                    </div>
+                    <div v-if="!xrepHidden">
+                        <XReport />
+                    </div>
+                    <div v-if="!zrepHidden">
+                        <XReport />
+                    </div>
                 </div>
                 <div class="button-row">
-                    <button class="action-button">Generate X report</button>
-                    <button class="action-button">Generate Z report</button>
+                    <div>
+
+                    </div>
+                    <button v-if="graphHidden" @click="assertView(true, false)" class="action-button">Show Usage
+                        Chart</button>
+                    <button v-if="!graphHidden" @click="assertView(false, true)" class="action-button">Show X
+                        Report</button>
+                    <button v-if="!graphHidden" @click="assertView(false, false)" class="action-button">Show Z
+                        Report</button>
                 </div>
             </div>
             <div class="button-panel">
@@ -36,15 +51,21 @@
 
 <script>
 import IngredientUsageChart from './usageChart.vue';
+import XReport from './viewXReport.vue';
+// import ZReport from './viewZReport.vue';
 import axios from 'axios';
 
 export default {
     name: 'ManagerHome',
     components: {
         IngredientUsageChart,
+        XReport,
     },
     data() {
         return {
+            graphHidden: false,
+            xrepHidden: true,
+            zrepHidden: true,
             city: null,
             region: null,
             weather: null,
@@ -78,6 +99,23 @@ export default {
                 this.weather = weatherResponse.data;
             } catch (error) {
                 console.error('Error fetching weather data:', error);
+            }
+        },
+        assertView(g, x) {
+            if (g) {                //graph button clicked
+                this.graphHidden = false;
+                this.xrepHidden = true;
+                this.zrepHidden = true;
+            } else {                //x or z report button clicked
+                if (x) {
+                    this.graphHidden = true;
+                    this.xrepHidden = false;
+                    this.zrepHidden = true;
+                } else {
+                    this.graphHidden = true;
+                    this.xrepHidden = true;
+                    this.zrepHidden = false;
+                }
             }
         },
     },
