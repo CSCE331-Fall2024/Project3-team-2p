@@ -45,7 +45,7 @@ export default {
                 date.value = today.toISOString().split('T')[0];
                 const response = await axios.get('/api/analytics/x-report', {
                     params: {
-                        day: date.value,
+                        date: date.value,
                     },
                 });
                 salesData.value = response.data;
