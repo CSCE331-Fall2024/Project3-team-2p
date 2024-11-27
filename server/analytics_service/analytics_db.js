@@ -50,6 +50,45 @@ class AnalyticsService {
 
         return usageData;
     }
+
+    /**
+     * Generates X Report for a given day
+     * @param {Date} day - The date for which the report is generated
+     * @returns {Promise<Array>} - Array of objects containing hourly sales data
+     */
+    async getXReport(day) {
+        const query = `
+            SELECT 
+                DATE_TRUNC('hour', o.timestamp) AS hour, 
+                COUNT(o.id) AS sales_count, 
+                SUM(o.price) AS total_revenue 
+            FROM orders o 
+            WHERE DATE(o.timestamp) = $1 
+            GROUP BY DATE_TRUNC('hour', o.timestamp) 
+            ORDER BY hour;
+        `;
+
+        const reportData = [];
+        const client = await this.pool.connect();
+
+        try {
+            const result = await client.query(query, [day.date]);
+
+            result.rows.forEach(row => {
+                reportData.push({
+                    hour: row.hour,
+                    sales_count: parseInt(row.sales_count, 10),
+                    total_revenue: Math.round(parseFloat(row.total_revenue) * 100) / 100
+                });
+            });
+        } catch (error) {
+            console.error('Error generating X Report:', error);
+        } finally {
+            client.release();
+        }
+
+        return reportData;
+    }
 }
 
 export default AnalyticsService;
