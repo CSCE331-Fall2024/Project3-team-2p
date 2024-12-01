@@ -3,8 +3,10 @@
     <!-- Left side: Main view or Entree selection view -->
     <div class="left-side">
       <TranslateButton />
-      <button class="login-buttons" @click="loginAsManager">Login as Manager</button>
-      <button class="login-buttons" @click="loginAsCashier">Login as Cashier</button>
+      <div class="login-buttons-contain">
+        <button class="login-buttons" @click="loginAsManager">Login as Manager</button>
+        <button class="login-buttons" @click="loginAsCashier">Login as Cashier</button>
+      </div>
       <div v-if="!isSelectingEntrees && !isSelectingSides">
         <!-- Suggested Orders section -->
         <h2 class="labels">Suggested Orders</h2>
@@ -625,6 +627,11 @@ export default {
 .add-to-cart:active{
   background-color: #e63900;
   transform: scale(1);
+}
+.login-buttons-contain{
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .login-buttons{
   align-self: flex-start;
