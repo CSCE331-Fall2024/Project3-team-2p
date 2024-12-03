@@ -5,7 +5,9 @@ const router = express.Router();
 const suggestions_service = new SuggestionsService();
 
 /**
- * Will always output most popular bowl, plate, and bigger plate. Each order will only contain 1 side
+ * Will always output most popular bowl, plate, and bigger plate.
+ * This way the user can see the most popular order for each type.
+ * Each order will only contain 1 side.
  * entrees[0][0] corresponds to sides[0][0] and so on.
  * EXAMPLE OUTPUT:
  * {
