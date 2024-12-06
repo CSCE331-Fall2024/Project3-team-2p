@@ -34,7 +34,7 @@
                         </td>
                         <td v-else>{{ item.entree ? "Entree" : "Side" }}</td>
 
-                        <td><button @click="editMenuItem(index)" class="action-button">{{ item.selected ? "Save" :
+                        <td><button v-if="!(item.selected && showIngredientPanel)" @click="editMenuItem(index)" class="action-button">{{ item.selected ? "Save" :
                             "Select" }}</button>
                             <button v-if="item.selected" @click="editIngredients(index)" class="action-button">{{
                                 this.showIngredientPanel ? "Save Ingredients" : "Ingredients" }}</button>
@@ -51,7 +51,6 @@
                     <div v-for="item in menuData[ingredientIndex].ingredients" :key="item.id" class="ingredient-box">
                         {{ item.name }}
                         <div class="row-container">
-                            <!-- TODO: change price to amount -->
                             <input v-model.number="item.quantity" type="number" />
                             {{ item.unit }}
                         </div>
@@ -102,6 +101,7 @@ export default {
                 },
             ],
             ingredientData: [],
+            emptyIngredientList: [],
             maxId: 0,
             showIngredientPanel: false,
             ingredientIndex: 0,
@@ -111,8 +111,20 @@ export default {
     created() {
         //TODO: uncomment when api is complete
         //this.fetchMenu();
+        this.fetchEmptyIngredientList();
     },
     methods: {
+        async fetchEmptyIngredientList() {
+            try {
+                const response = await axios.get('/api/inventory/ingredients');
+                this.emptyIngredientList = response.data.map(ingr => {
+                    return { id: ingr.id, name: ingr.name, quantity: 0, unit: ingr.unit };
+                });
+                console.log('ingredient fetched:', this.emptyIngredientList);
+            } catch (error) {
+                console.error('Error fetching ingredients:', error);
+            }
+        },
         async fetchMenu() {
             try {
                 const response = await axios.get('/api/inventory/menu-items');
@@ -123,26 +135,28 @@ export default {
                 console.error('Error fetching menuData:', error);
             }
         },
-        // async updateMenu(menuItem) {
-        //     try {
-        //         /*const ingredientsMenuItems = menuItem.reduce((obj, item) => {
-        //             obj[item.id] = [];
-        //             return obj;
-        //         }, {});*/
-        //         console.log(this.menuData);
+        async updateMenu() {
+            try {
+                /*const ingredientsMenuItems = menuItem.reduce((obj, item) => {
+                    obj[item.id] = [];
+                    return obj;
+                }, {});*/
+                /*console.log(this.menuData);
 
-        //         console.log(menuItem.Name);
-        //         const ingredientsMenuItems = {
-        //             [menuItem.id]: []
-        //         };
-        //         const response = await axios.post('/api/inventory/menu-items', { menuItems: [menuItem], ingredientsMenuItems });
-        //         //console.log({ menuItems: [menuItem], ingredientsMenuItems });
+                console.log(menuItem.Name);
+                const ingredientsMenuItems = {
+                    [menuItem.id]: []
+                };
+                const response = await axios.post('/api/inventory/menu-items', { menuItems: [menuItem], ingredientsMenuItems });*/
+                //console.log({ menuItems: [menuItem], ingredientsMenuItems });
 
-        //         console.log(response.data.message);
-        //     } catch (error) {
-        //         console.error('Error updating ingredients:', error);
-        //     }
-        // },
+                const response = await axios.post('/api/inventory/menu-items', {menuItems});
+
+                console.log(response.data.message);
+            } catch (error) {
+                console.error('Error updating ingredients:', error);
+            }
+        },
         editMenuItem(index) {
             if (this.menuData[index].selected) {
                 if (this.showIngredientPanel) {
@@ -150,9 +164,8 @@ export default {
                 } else {
                     this.menuData[index].selected = false
                     this.anyItemSelected = false
-                    //this.menuData[index].ingredients = this.ingredientData;
                     //TODO: remove comment when api works
-                    //this.updateMenu(this.menuData[index])
+                    //this.updateMenu()
                 }
             } else {
                 if (this.anyItemSelected) {
@@ -165,29 +178,16 @@ export default {
         },
         editEntreeBool(index) {
             this.menuData[index].entree = !this.menuData[index].entree;
-            //this.updateMenu(this.menuData[index]);
         },
         addMenuItem() {
             if (this.anyItemSelected) {
                 alert("Please save your changes before adding a new item")
             } else {
+                this.anyItemSelected = true;
                 this.maxId += 1;
                 //TODO: change ingredients to [] when done testing
                 this.menuData.push({
-                    "id": this.maxId, "name": "", "price": 0, "entree": true, "ingredients": [
-                        {
-                            id: 10,
-                            name: "Orange Sauce",
-                            quantity: 300,
-                            unit: "ml",
-                        },
-                        {
-                            id: 21,
-                            name: "Chicken",
-                            quantity: 100,
-                            unit: "g",
-                        }
-                    ], "selected": true
+                    "id": this.maxId, "name": "", "price": 0, "entree": true, "ingredients": this.emptyIngredientList, "selected": true
                 });
             }
         },
@@ -199,6 +199,14 @@ export default {
             } else {
                 //set index
                 this.ingredientIndex = index;
+                // merge base ingredient list with specific ingredient list
+                const subsetIds = new Set(this.menuData[index].ingredients.map(item => item.id));
+                this.emptyIngredientList.forEach(item => {
+                    if (!subsetIds.has(item.id)) {
+                        this.menuData[index].ingredients.push({ ...item });
+                    }
+                });
+                console.log("new ingredients:", this.menuData[index].ingredients);
                 //show panel
                 this.showIngredientPanel = true;
             }
