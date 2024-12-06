@@ -46,7 +46,7 @@
         </div>
         <div class="ingredient-panel" v-if="showIngredientPanel">
             <div class="menu-panel">
-                <h1>{{ menuData[ingredientIndex].name }}</h1>
+                <h1 class="title">{{ menuData[ingredientIndex].name }}</h1>
                 <div class="button-container">
                     <div v-for="item in menuData[ingredientIndex].ingredients" :key="item.id" class="ingredient-box">
                         {{ item.name }}
@@ -223,7 +223,8 @@ export default {
     width: 16vw;
     top: 5vh;
     left: 2vw;
-    background-color: #949292;
+    background-color: #273043;
+    border-radius: 5px;
     overflow-y: scroll;
 }
 
