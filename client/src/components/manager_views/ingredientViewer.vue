@@ -1,10 +1,15 @@
 <template>
     <div class="menu-panel">
-        <h1>{{ itemIndex }}</h1>
+        <h1>Menu item {{ ingredientIndex }}</h1>
         <div class="button-container">
-            <button v-for="item in inventoryData" :key="item.id" class="action-button">
+            <div v-for="item in inventoryData" :key="item.id" class="ingredient-box">
                 {{ item.name }}
-            </button>
+                <div class="row-container">
+                    <!-- TODO: change price to amount -->
+                    <input v-model.number="item.price" type="number" /> 
+                    {{ item.unit }}
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -50,14 +55,25 @@ export default {
 
 <style>
 .menu-panel {
-    padding: 20px;
+    padding: 10px;
     text-align: center;
+}
+
+.ingredient-box {
+    width: 90%;
+    background-color: #EFF6EE;
+    color: black;
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
 }
 
 .button-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 5px;
     justify-content: center;
     margin-top: 20px;
 }

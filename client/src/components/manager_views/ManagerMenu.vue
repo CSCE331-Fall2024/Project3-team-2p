@@ -45,7 +45,7 @@
             <button @click="addMenuItem" class="action-button">Add Menu Item</button>
         </div>
         <div class="ingredient-panel" v-if="showIngredientPanel">
-            <ingredient-viewer :index=ingredientIndex></ingredient-viewer>
+            <ingredient-viewer :ingredientIndex="ingredientIndex"></ingredient-viewer>
         </div>
     </div>
 </template>
@@ -68,7 +68,7 @@ export default {
             menuData: [],
             maxId: 0,
             showIngredientPanel: false,
-            ingredientIndex: 1,
+            ingredientIndex: 0,
             anyItemSelected: false,
         };
     },
@@ -108,9 +108,13 @@ export default {
         },
         editMenuItem(index) {
             if (this.menuData[index].selected) {
-                this.menuData[index].selected = false
-                this.anyItemSelected = false
-                this.updateMenu(this.menuData[index])
+                if(this.showIngredientPanel) {
+                    alert("Please save your ingredients before saving the item")
+                } else {
+                    this.menuData[index].selected = false
+                    this.anyItemSelected = false
+                    this.updateMenu(this.menuData[index])
+                }
             } else {
                 if(this.anyItemSelected){
                     alert("Please save your changes before editing a new item")
@@ -136,7 +140,7 @@ export default {
                 this.updateMenu(this.menuData[index])
             } else {
                 //edit ingredients
-                this.ingredientIndex = index;
+                this.ingredientIndex = this.menuData[index].id;
                 this.showIngredientPanel = true;
             }
         },
@@ -148,10 +152,11 @@ export default {
 .ingredient-panel {
     z-index: 20;
     position: fixed;
-    height: 50vh;
-    width: 100vw;
-    bottom: 0%;
-    left: 0%;
+    height: 90vh;
+    width: 16vw;
+    top: 5vh;
+    left: 2vw;
     background-color: #949292;
+    overflow-y: scroll;
 }
 </style>
