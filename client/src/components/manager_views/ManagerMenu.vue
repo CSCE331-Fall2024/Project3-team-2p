@@ -57,26 +57,16 @@
                     </div>
                 </div>
             </div>
-            <!-- <ingredient-viewer :ingredientIndex="ingredientIndex"></ingredient-viewer> -->
         </div>
     </div>
 </template>
 
 <script>
 import axios from 'axios';
-//import IngredientViewer from './ingredientViewer.vue';
 axios.defaults.baseURL = process.env.VUE_APP_BASE_URL;
 export default {
-    // components: {
-    //     IngredientViewer,
-    // },
     data() {
-        //TODO: replace with data from api call
         return {
-            /*menuData: [
-                { name: "Orange Chicken", price: 0, entree: true, selected: false },
-                { name: "Beijing Beef", price: 0, entree: true, selected: false },
-            ],*/
             //menuData: [],
             menuData: [
                 {
@@ -129,7 +119,7 @@ export default {
             try {
                 const response = await axios.get('/api/inventory/menu-items');
                 this.menuData = response.data;
-                //this.maxId = Math.max(0, ...this.menuData.map(item => item.id || 0));
+                this.maxId = Math.max(0, ...this.menuData.map(item => item.id || 0));
                 console.log('menuData fetched:', this.menuData);
             } catch (error) {
                 console.error('Error fetching menuData:', error);
@@ -137,10 +127,6 @@ export default {
         },
         async updateMenu() {
             try {
-                /*const ingredientsMenuItems = menuItem.reduce((obj, item) => {
-                    obj[item.id] = [];
-                    return obj;
-                }, {});*/
                 /*console.log(this.menuData);
 
                 console.log(menuItem.Name);
@@ -185,14 +171,12 @@ export default {
             } else {
                 this.anyItemSelected = true;
                 this.maxId += 1;
-                //TODO: change ingredients to [] when done testing
                 this.menuData.push({
                     "id": this.maxId, "name": "", "price": 0, "entree": true, "ingredients": this.emptyIngredientList, "selected": true
                 });
             }
         },
         editIngredients(index) {
-            //index = index;
             if (this.showIngredientPanel) {
                 //hide panel
                 this.showIngredientPanel = false;
