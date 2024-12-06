@@ -37,7 +37,7 @@
                         <td><button @click="editMenuItem(index)" class="action-button">{{ item.selected ? "Save" :
                             "Select" }}</button>
                             <button v-if="item.selected" @click="editIngredients(index)" class="action-button">{{
-                                this.showIngredientPanel ? "Save Ingredients" : "Ingredients"}}</button>
+                                this.showIngredientPanel ? "Save Ingredients" : "Ingredients" }}</button>
                         </td>
                     </tr>
                 </tbody>
@@ -45,19 +45,32 @@
             <button @click="addMenuItem" class="action-button">Add Menu Item</button>
         </div>
         <div class="ingredient-panel" v-if="showIngredientPanel">
-            <ingredient-viewer :ingredientIndex="ingredientIndex"></ingredient-viewer>
+            <div class="menu-panel">
+                <h1>{{ menuData[ingredientIndex].name }}</h1>
+                <div class="button-container">
+                    <div v-for="item in menuData[ingredientIndex].ingredients" :key="item.id" class="ingredient-box">
+                        {{ item.name }}
+                        <div class="row-container">
+                            <!-- TODO: change price to amount -->
+                            <input v-model.number="item.quantity" type="number" />
+                            {{ item.unit }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <ingredient-viewer :ingredientIndex="ingredientIndex"></ingredient-viewer> -->
         </div>
     </div>
 </template>
 
 <script>
 import axios from 'axios';
-import IngredientViewer from './ingredientViewer.vue';
+//import IngredientViewer from './ingredientViewer.vue';
 axios.defaults.baseURL = process.env.VUE_APP_BASE_URL;
 export default {
-    components: {
-        IngredientViewer,
-    },
+    // components: {
+    //     IngredientViewer,
+    // },
     data() {
         //TODO: replace with data from api call
         return {
@@ -65,7 +78,30 @@ export default {
                 { name: "Orange Chicken", price: 0, entree: true, selected: false },
                 { name: "Beijing Beef", price: 0, entree: true, selected: false },
             ],*/
-            menuData: [],
+            //menuData: [],
+            menuData: [
+                {
+                    id: 1,
+                    name: "Orange Chicken",
+                    entree: 1,
+                    price: 0,
+                    ingredients: [
+                        {
+                            id: 10,
+                            name: "Orange Sauce",
+                            quantity: 300,
+                            unit: "ml",
+                        },
+                        {
+                            id: 21,
+                            name: "Chicken",
+                            quantity: 100,
+                            unit: "g",
+                        }
+                    ]
+                },
+            ],
+            ingredientData: [],
             maxId: 0,
             showIngredientPanel: false,
             ingredientIndex: 0,
@@ -73,7 +109,8 @@ export default {
         };
     },
     created() {
-        this.fetchMenu();
+        //TODO: uncomment when api is complete
+        //this.fetchMenu();
     },
     methods: {
         async fetchMenu() {
@@ -86,37 +123,39 @@ export default {
                 console.error('Error fetching menuData:', error);
             }
         },
-        async updateMenu(menuItem) {
-            try {
-                /*const ingredientsMenuItems = menuItem.reduce((obj, item) => {
-                    obj[item.id] = [];
-                    return obj;
-                }, {});*/
-                console.log(this.menuData);
+        // async updateMenu(menuItem) {
+        //     try {
+        //         /*const ingredientsMenuItems = menuItem.reduce((obj, item) => {
+        //             obj[item.id] = [];
+        //             return obj;
+        //         }, {});*/
+        //         console.log(this.menuData);
 
-                console.log(menuItem.Name);
-                const ingredientsMenuItems = {
-                    [menuItem.id]: []
-                };
-                const response = await axios.post('/api/inventory/menu-items', { menuItems: [menuItem], ingredientsMenuItems });
-                //console.log({ menuItems: [menuItem], ingredientsMenuItems });
+        //         console.log(menuItem.Name);
+        //         const ingredientsMenuItems = {
+        //             [menuItem.id]: []
+        //         };
+        //         const response = await axios.post('/api/inventory/menu-items', { menuItems: [menuItem], ingredientsMenuItems });
+        //         //console.log({ menuItems: [menuItem], ingredientsMenuItems });
 
-                console.log(response.data.message);
-            } catch (error) {
-                console.error('Error updating ingredients:', error);
-            }
-        },
+        //         console.log(response.data.message);
+        //     } catch (error) {
+        //         console.error('Error updating ingredients:', error);
+        //     }
+        // },
         editMenuItem(index) {
             if (this.menuData[index].selected) {
-                if(this.showIngredientPanel) {
+                if (this.showIngredientPanel) {
                     alert("Please save your ingredients before saving the item")
                 } else {
                     this.menuData[index].selected = false
                     this.anyItemSelected = false
-                    this.updateMenu(this.menuData[index])
+                    //this.menuData[index].ingredients = this.ingredientData;
+                    //TODO: remove comment when api works
+                    //this.updateMenu(this.menuData[index])
                 }
             } else {
-                if(this.anyItemSelected){
+                if (this.anyItemSelected) {
                     alert("Please save your changes before editing a new item")
                 } else {
                     this.menuData[index].selected = true
@@ -126,21 +165,41 @@ export default {
         },
         editEntreeBool(index) {
             this.menuData[index].entree = !this.menuData[index].entree;
-            this.updateMenu(this.menuData[index]);
+            //this.updateMenu(this.menuData[index]);
         },
         addMenuItem() {
-            this.maxId += 1;
-            this.menuData.push({ id: this.maxId, Name: "", "Aditional Cost": 0, Entree: true, selected: true });
+            if (this.anyItemSelected) {
+                alert("Please save your changes before adding a new item")
+            } else {
+                this.maxId += 1;
+                //TODO: change ingredients to [] when done testing
+                this.menuData.push({
+                    "id": this.maxId, "name": "", "price": 0, "entree": true, "ingredients": [
+                        {
+                            id: 10,
+                            name: "Orange Sauce",
+                            quantity: 300,
+                            unit: "ml",
+                        },
+                        {
+                            id: 21,
+                            name: "Chicken",
+                            quantity: 100,
+                            unit: "g",
+                        }
+                    ], "selected": true
+                });
+            }
         },
         editIngredients(index) {
-            index = index;
-            if(this.showIngredientPanel) {
-                //save ingredients
+            //index = index;
+            if (this.showIngredientPanel) {
+                //hide panel
                 this.showIngredientPanel = false;
-                this.updateMenu(this.menuData[index])
             } else {
-                //edit ingredients
-                this.ingredientIndex = this.menuData[index].id;
+                //set index
+                this.ingredientIndex = index;
+                //show panel
                 this.showIngredientPanel = true;
             }
         },
@@ -158,5 +217,29 @@ export default {
     left: 2vw;
     background-color: #949292;
     overflow-y: scroll;
+}
+
+.menu-panel {
+    padding: 10px;
+    text-align: center;
+}
+
+.ingredient-box {
+    width: 90%;
+    background-color: #EFF6EE;
+    color: black;
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+}
+
+.button-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+    margin-top: 20px;
 }
 </style>
