@@ -100,7 +100,7 @@ export default {
     },
     created() {
         //TODO: uncomment when api is complete
-        //this.fetchMenu();
+        this.fetchMenu();
         this.fetchEmptyIngredientList();
     },
     methods: {
@@ -118,7 +118,8 @@ export default {
         async fetchMenu() {
             try {
                 const response = await axios.get('/api/inventory/menu-items');
-                this.menuData = response.data;
+                this.menuData = response.data.menuItems;
+                console.log(this.menuData);
                 this.maxId = Math.max(0, ...this.menuData.map(item => item.id || 0));
                 console.log('menuData fetched:', this.menuData);
             } catch (error) {
@@ -136,8 +137,9 @@ export default {
                 const response = await axios.post('/api/inventory/menu-items', { menuItems: [menuItem], ingredientsMenuItems });*/
                 //console.log({ menuItems: [menuItem], ingredientsMenuItems });
 
-                const response = await axios.post('/api/inventory/menu-items', {menuItems});
+                // console.log("fdsjalkfjdsalk:", this.menuData);
 
+                const response = await axios.post('/api/inventory/menu-items', this.menuData);
                 console.log(response.data.message);
             } catch (error) {
                 console.error('Error updating ingredients:', error);
@@ -151,7 +153,7 @@ export default {
                     this.menuData[index].selected = false
                     this.anyItemSelected = false
                     //TODO: remove comment when api works
-                    //this.updateMenu()
+                    this.updateMenu()
                 }
             } else {
                 if (this.anyItemSelected) {

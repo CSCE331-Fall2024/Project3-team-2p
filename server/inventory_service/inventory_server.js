@@ -33,10 +33,10 @@ router.get('/menu-items', async (req, res) => {
  */
 
 router.post('/menu-items', async (req, res) => {
-    const { menuItems, ingredientsMenuItems } = req.body;
+    const menuItems = req.body;
 
     try {
-        await inventoryService.updateMenuItems(menuItems, ingredientsMenuItems);
+        await inventoryService.updateMenuItems(menuItems);
         res.status(201).json({ message: 'Menu items updated successfully' });
     } catch (error) {
         console.error('Error updating menu items:', error);

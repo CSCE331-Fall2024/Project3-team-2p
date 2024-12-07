@@ -19,6 +19,12 @@ async function testGetAllMenuItems() {
     try {
         const menuItems = await inventoryService.getAllMenuItems();
         console.log("Fetched Menu Items:", menuItems);
+
+        for (const item of menuItems.menuItems) {
+            if (item.id === 2) {
+                console.log(`Ingredients for menu item with id 2 (${item.name}):`, item.ingredients);
+            }
+        }
     } catch (error) {
         console.error("Test failed:", error);
     } finally {
@@ -43,17 +49,29 @@ async function testSendMenuToBackend() {
     const inventoryService = new InventoryService();
 
     const testMenuItems = [
-        { id: 2, Name: "Honey Walnut Shrimp", "Additional Cost": 1.99, Entree: 1 },
-        { id: 17, Name: "String Bean Salad", "Additional Cost": 0.00, Entree: 0 }
+        {
+            id: 2,
+            name: "Honey Walnut Shrimp",
+            price: 1.99,
+            entree: 1,
+            ingredients: [
+                { id: 9, name: "Shrimp", quantity: 100, unit: "g" },
+                { id: 12, name: "Walnuts", quantity: 50, unit: "g" }
+            ]
+        },
+        {
+            id: 17,
+            name: "String Bean Salad",
+            price: 0.00,
+            entree: 0,
+            ingredients: [
+                { id: 1, name: "String Bean", quantity: 200, unit: "g" }
+            ]
+        }
     ];
 
-    const testIngredientsMenuItems = {
-        2: [9, 12],
-        17: [1] 
-    };
-
     try {
-        await inventoryService.updateMenuItems(testMenuItems, testIngredientsMenuItems);
+        await inventoryService.updateMenuItems(testMenuItems);
         console.log("Test successful: Menu items sent to backend.");
     } catch (error) {
         console.error("Test failed:", error);
@@ -100,12 +118,12 @@ async function testUpdateIngredients() {
     }
 }
 
-testGetAllIngredients();
+// testGetAllIngredients();
 // testGetAllMenuItems();
 // testGetEmployees();
 
-// testSendMenuToBackend();
-// testGetAllMenuItems();
+testSendMenuToBackend();
+testGetAllMenuItems();
 
 // testUpdateEmployees();
 // testGetEmployees();
