@@ -3,8 +3,10 @@
     <!-- Left side: Main view or Entree selection view -->
     <div class="left-side">
       <TranslateButton />
-      <button class="login-buttons" @click="loginAsManager">Login as Manager</button>
-      <button class="login-buttons" @click="loginAsCashier">Login as Cashier</button>
+      <div class="login-buttons-contain">
+        <button class="login-buttons" @click="loginAsManager">Login as Manager</button>
+        <button class="login-buttons" @click="loginAsCashier">Login as Cashier</button>
+      </div>
       <div v-if="!isSelectingEntrees && !isSelectingSides">
         <!-- Suggested Orders section -->
         <h2 class="labels">Suggested Orders</h2>
@@ -37,11 +39,6 @@
             class="build-item"
             @click="selectBuildYourOwn(item)"
           >
-            <img
-              :src="getBuildImageUrl(item)"
-              :alt="item.name + ' Image'"
-              class="item-image"
-            />
             <div class="details">
               <h3>{{ item.name }} - {{ item.price }}</h3>
             </div>
@@ -135,8 +132,6 @@
   </div>
 </template>
 
-
-
 <script>
 import axios from 'axios';
 import TranslateButton from './TranslateButton.vue';
@@ -153,35 +148,10 @@ export default {
       selectedBuildItem: null,
       maxSides: 2,
       orders: [],
-      entreeList: [], // List of entrees for API call
-      sideList: [], // List of sides for API call
-      orderType: null, // Order type for API call
-      suggestedOrders: [
-        {
-          name: "Plate",
-          price: "$10.99",
-          description: "Broccoli Beef, Orange Chicken, White Rice",
-          entrees: ["Broccoli Beef", "Orange Chicken"],
-          sides: ["White Rice"],
-          type: 1
-        },
-        {
-          name: "Plate",
-          price: "$10.99",
-          description: "Broccoli Beef, Teriyaki Chicken, Chow Mein",
-          entrees: ["Broccoli Beef", "Teriyaki Chicken"],
-          sides: ["Chow Mein"],
-          type: 1
-        },
-        {
-          name: "Bowl",
-          price: "$9.99",
-          description: "Orange Chicken, White Rice",
-          entrees: ["Orange Chicken"],
-          sides: ["White Rice"],
-          type: 0
-        }
-      ],
+      entreeList: [], 
+      sideList: [],
+      orderType: null,
+      suggestedOrders: [],
       buildItems: [
         { name: "Bowl", price: "$8.99", type: 0 },
         { name: "Plate", price: "$9.99", type: 1 },
@@ -189,8 +159,8 @@ export default {
       ],
       entrees: [],
       sides: [],
-      isOrderSummaryVisible: false, // New data property for modal visibility
-      isMobileView: false // To track if the current view is mobile
+      isOrderSummaryVisible: false,
+      isMobileView: false
     };
   },
   created() {
@@ -198,6 +168,9 @@ export default {
     this.fetchSides();
     this.checkViewport();
     window.addEventListener('resize', this.checkViewport);
+  },
+  async mounted() {
+    await this.fetchPopularSuggestions();
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.checkViewport);
@@ -233,6 +206,51 @@ export default {
         console.error('Error fetching sides:', error);
       }
     },
+
+    async fetchPopularSuggestions() {
+      try {
+        const response = await axios.get('/api/suggestions/popular');
+        const { entrees, sides } = response.data;
+        console.log('Fetched suggestions:', entrees, sides);
+
+        if (!entrees || !entrees[0] || !sides || !sides[0]) {
+          console.warn("Expected structure not found in suggestions response.");
+          return;
+        }
+
+        this.suggestedOrders = [
+          {
+            name: "Bowl",
+            price: "$8.99",
+            description: `${entrees[0][0].name}, ${sides[0][0].name}`,
+            entrees: [entrees[0][0].name],
+            sides: [sides[0][0].name],
+            type: 0
+          },
+          {
+            name: "Plate",
+            price: "$9.99",
+            description: `${entrees[1][0].name}, ${entrees[1][1].name}, ${sides[1][0].name}`,
+            entrees: [entrees[1][0].name, entrees[1][1].name],
+            sides: [sides[1][0].name],
+            type: 1
+          },
+          {
+            name: "Bigger Plate",
+            price: "$11.99",
+            description: `${entrees[2][0].name}, ${entrees[2][1].name}, ${entrees[2][2].name}, ${sides[2][0].name}`,
+            entrees: [entrees[2][0].name, entrees[2][1].name, entrees[2][2].name],
+            sides: [sides[2][0].name],
+            type: 2
+          }
+        ];
+
+        console.log('Suggested orders set:', this.suggestedOrders);
+      } catch (error) {
+        console.error('Error fetching popular suggestions:', error);
+      }
+    },
+
     addOrder(order) {
       this.orders.push(order);
     },
@@ -252,26 +270,22 @@ export default {
                         : this.selectedBuildItem.name === 'Plate' ? 2 
                         : 3;
 
-      // Check if entrees exceed the allowed number for this order type
       if (this.selectedBuildItem.entrees.length >= entreeLimit) {
-        this.selectedBuildItem.entrees.shift(); // Remove the first entree (FIFO)
+        this.selectedBuildItem.entrees.shift(); 
       }
 
       this.selectedBuildItem.entrees.push(entree.name);
       this.entreeList.push(entree.name);
       this.selectedBuildItem.description = this.selectedBuildItem.entrees.join(", ");
-      
-      // Update price based on added entree
+
       let tempPrice = this.selectedBuildItem.price.substring(1);
       tempPrice = (Number(tempPrice) + Number(entree.price)).toFixed(2);
       this.selectedBuildItem.price = `$${tempPrice}`;
       
-      // Check if this build item is already in orders
       if (!this.orders.includes(this.selectedBuildItem)) {
         this.orders.push(this.selectedBuildItem);
       }
 
-      // Move to sides selection if entree count meets the limit for the build item type
       if (this.selectedBuildItem.entrees.length >= entreeLimit) {
         this.goToSidesView();
       }
@@ -286,7 +300,6 @@ export default {
         ].join(", ");
       }
       if (this.selectedBuildItem.sides.length === this.maxSides){
-        //this.orders.push({ ...this.selectedBuildItem });
         this.selectedBuildItem = null;
         this.isSelectingEntrees = false;
         this.isSelectingSides = false;
@@ -327,7 +340,6 @@ export default {
       this.isSelectingSides = false;
     },
     async placeOrder() {
-
       for (const order of this.orders) {
         const orderType = order.type;
         const entrees = order.entrees;
@@ -338,8 +350,8 @@ export default {
           return;
         }
         if (entrees.length === 0) {
-            alert('Please add at least one entree.');
-            return;
+          alert('Please add at least one entree.');
+          return;
         }
         if ((orderType === 0 && entrees.length != 1) ||
             (orderType === 1 && entrees.length != 2) ||
@@ -357,7 +369,6 @@ export default {
         }
 
         try {
-          // Send order data to the server
           await axios.post('/api/customers/place-order', {
             order_type: orderType,
             entrees: entrees,
@@ -366,22 +377,18 @@ export default {
         } catch (error) {
           console.error('Error placing order:', error); 
           alert('Failed to place order. Please try again.');
-          return; // Exit if there's an error
+          return; 
         }
       }  
       alert("Order Placed Successfully");
-      this.resetOrder(); // Reset order summary if needed
-  },
-
-  async loginAsManager() {
-    window.location.href = process.env.VUE_APP_BASE_URL + 'auth/google?role=manager';
-  },
-
-  async loginAsCashier() {
-    window.location.href = process.env.VUE_APP_BASE_URL + 'auth/google?role=cashier';
-  },
-    
-    // Reset order after placing (optional)
+      this.resetOrder();
+    },
+    async loginAsManager() {
+      window.location.href = process.env.VUE_APP_BASE_URL + 'auth/google?role=manager';
+    },
+    async loginAsCashier() {
+      window.location.href = process.env.VUE_APP_BASE_URL + 'auth/google?role=cashier';
+    },
     resetOrder() {
       this.orders = [];
       this.entreeList = [];
@@ -390,18 +397,13 @@ export default {
       this.selectedBuildItem = null;
       this.isSelectingEntrees = false;
       this.isSelectingSides = false;
-      this.isOrderSummaryVisible = false; // Close modal if open
+      this.isOrderSummaryVisible = false;
     },
-
-    // Helper method to get entree image URL
     getImageUrl(entreeName) {
       const entree = this.entrees.find(e => e.name === entreeName);
       return entree ? entree.image : '';
     },
-
-    // Helper method to get build item image URL
     getBuildImageUrl(buildItem) {
-      // Assuming you have a mapping of build item names to image URLs
       const buildImages = {
         "Bowl": "path/to/bowl-image.jpg",
         "Plate": "path/to/plate-image.jpg",
@@ -409,16 +411,11 @@ export default {
       };
       return buildImages[buildItem.name] || '';
     },
-
-    // Toggle the Order Summary Modal
     toggleOrderSummary() {
       this.isOrderSummaryVisible = !this.isOrderSummaryVisible;
     },
-
-    // Check if the viewport is mobile
     checkViewport() {
-      this.isMobileView = window.innerWidth <= 768; // Define mobile breakpoint
-      // Close modal if switching to desktop
+      this.isMobileView = window.innerWidth <= 768; 
       if (!this.isMobileView && this.isOrderSummaryVisible) {
         this.isOrderSummaryVisible = false;
       }
@@ -429,8 +426,7 @@ export default {
 
 
 <style scoped>
-/* Main container layout */
-/* Main container layout */
+
 .app-container {
   display: flex;
   flex-direction: row;
@@ -625,6 +621,11 @@ export default {
 .add-to-cart:active{
   background-color: #e63900;
   transform: scale(1);
+}
+.login-buttons-contain{
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .login-buttons{
   align-self: flex-start;

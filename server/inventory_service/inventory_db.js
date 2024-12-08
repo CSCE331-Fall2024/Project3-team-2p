@@ -55,15 +55,52 @@ class InventoryService {
      */
     async getAllMenuItems() {
         const query = `
-            SELECT id, name, price, entree
-            FROM menuitems
-            ORDER BY id ASC;
+            SELECT 
+                mi.id AS menuItemId,
+                mi.name AS menuItemName,
+                mi.price AS menuItemPrice,
+                mi.entree AS menuItemEntree,
+                i.id AS ingredientId,
+                i.name AS ingredientName,
+                COALESCE(im.quantity, 0) AS ingredientQuantity,
+                i.unit AS ingredientUnit
+            FROM menuitems mi
+            LEFT JOIN ingredientsmenuitems im ON mi.id = im.menuitemkey
+            LEFT JOIN ingredients i ON im.ingredientkey = i.id
+            ORDER BY mi.id, i.id;
         `;
+        
         try {
-            const { rows: menuItems } = await this.pool.query(query);
-            return menuItems;
+            const { rows } = await this.pool.query(query);
+
+            const menuItems = rows.reduce((acc, row) => {
+                let menuItem = acc.find(item => item.id === row.menuitemid);
+                if (!menuItem) {
+                    menuItem = {
+                        id: row.menuitemid,
+                        name: row.menuitemname,
+                        entree: row.menuitementree,
+                        price: row.menuitemprice,
+                        ingredients: []
+                    };
+                    acc.push(menuItem);
+                }
+
+                if (row.ingredientid) {
+                    menuItem.ingredients.push({
+                        id: row.ingredientid,
+                        name: row.ingredientname,
+                        quantity: row.ingredientquantity,
+                        unit: row.ingredientunit
+                    });
+                }
+
+                return acc;
+            }, []);
+
+            return { menuItems };
         } catch (error) {
-            console.error("Error fetching menu items:", error);
+            console.error("Error fetching menu items with ingredients:", error);
             throw error;
         }
     }
@@ -92,12 +129,25 @@ class InventoryService {
      * @param {Array} menuItems - Array of menu item objects
      * @param {Object} ingredientsMenuItems - Object with menu item IDs as keys and ingredient IDs array as values
      */
-    async updateMenuItems(menuItems, ingredientsMenuItems) {
+    async updateMenuItems(menuItems) {
         console.log("Sending menu to backend...");
         
+        console.log(menuItems);
+
         try {
+            const ingredientsMenuItems = {};
+            for (const item of menuItems) {
+                ingredientsMenuItems[item.id] = item.ingredients
+                    .filter(ingredient => ingredient.quantity > 0)
+                    .map(ingredient => ({
+                        ingredientId: ingredient.id,
+                        quantity: ingredient.quantity
+                    }));
+            }
+    
             await this.#updateMenuItems(menuItems);
             await this.#updateIngredientsMenuItems(ingredientsMenuItems);
+    
             console.log("Menu items sent to backend successfully.");
         } catch (error) {
             console.error("Error sending menu to backend:", error);
@@ -163,22 +213,26 @@ class InventoryService {
 
     /**
      * Updates the ingredients menu items table with new associations
-     * @param {Object} ingredientsMenuItems - Object with menu item IDs as keys and ingredient IDs array as values
+     * @param {Object} ingredientsMenuItems - Object with menu item IDs as keys and an array of ingredient objects as values
      */
     async #updateIngredientsMenuItems(ingredientsMenuItems) {
-        const query = `
+        const deleteQuery = `
+            DELETE FROM ingredientsmenuitems WHERE menuitemkey = $1;
+        `;
+        const insertQuery = `
             INSERT INTO ingredientsmenuitems (id, ingredientkey, menuitemkey, quantity)
-            VALUES ($1, $2, $3, $4)
-            ON CONFLICT (id)
-            DO UPDATE SET ingredientkey = EXCLUDED.ingredientkey, menuitemkey = EXCLUDED.menuitemkey, quantity = EXCLUDED.quantity;
+            VALUES ($1, $2, $3, $4);
         `;
 
         try {
             let id = await this.getMaxID("ingredientsmenuitems") + 1;
 
-            for (const [menuItemId, ingredientKeys] of Object.entries(ingredientsMenuItems)) {
-                for (const ingredientId of ingredientKeys) {
-                    await this.pool.query(query, [id, ingredientId, parseInt(menuItemId), 100]);
+            for (const [menuItemId, ingredients] of Object.entries(ingredientsMenuItems)) {
+                await this.pool.query(deleteQuery, [menuItemId]);
+
+                for (const ingredient of ingredients) {
+                    const { ingredientId, quantity } = ingredient;
+                    await this.pool.query(insertQuery, [id, ingredientId, parseInt(menuItemId), quantity]);
                     id += 1;
                 }
             }
