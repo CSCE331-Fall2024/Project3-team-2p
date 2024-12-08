@@ -165,12 +165,7 @@ export default {
             }
         },
         editEntreeBool(index) {
-            if(this.menuData[index].entree == 1){
-                this.menuData[index].entree = 0;
-            } else {
-                this.menuData[index].entree = 1;
-            }
-            //this.menuData[index].entree = !this.menuData[index].entree;
+            this.menuData[index].entree = !this.menuData[index].entree;
         },
         addMenuItem() {
             if (this.anyItemSelected) {
@@ -179,7 +174,7 @@ export default {
                 this.anyItemSelected = true;
                 this.maxId += 1;
                 this.menuData.push({
-                    "id": this.maxId, "name": "", "price": 0, "entree": 1, "ingredients": this.emptyIngredientList, "selected": true
+                    "id": this.maxId, "name": "", "price": 0, "entree": true, "ingredients": this.emptyIngredientList, "selected": true
                 });
             }
         },
