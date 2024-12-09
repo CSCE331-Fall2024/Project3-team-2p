@@ -120,4 +120,14 @@ router.post('/employees', async (req, res) => {
     }
 });
 
+router.get('/order-ingredients', async(req, res) => {
+    try {
+        await inventoryService.orderIngredients();
+        res.status(201).json({ message: 'Ordered ingredients!'});
+    } catch {
+        console.error('Error ordering ingredients: ', error);
+        res.status(500).json({ error: 'Failed to order ingredients'});
+    }
+})
+
 export default router;

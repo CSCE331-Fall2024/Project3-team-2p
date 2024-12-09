@@ -123,7 +123,8 @@ export default {
         },
         orderIngredients() {
             console.log("Order ingredients function called");
-            //TODO: API call to update inventory 
+            const response = axios.get('api/inventory/order-ingredients');
+            console.log(response);
         }
     }
 };
