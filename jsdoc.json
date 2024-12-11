@@ -1,0 +1,19 @@
+{
+    "source": {
+      "include": ["server/inventory_service/"],
+      "includePattern": ".+\\.js(doc|x)?$",
+      "excludePattern": "(^|\\/|\\\\)_"
+    },
+    "opts": {
+      "encoding": "utf8",
+      "destination": "./docs",
+      "recurse": true,
+      "readme": "README.md"
+    },
+    "templates": {
+      "default": {
+        "outputSourceFiles": false
+      }
+    }
+  }
+  
