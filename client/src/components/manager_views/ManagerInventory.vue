@@ -79,7 +79,10 @@ export default {
         this.fetchInventory();
     },
     methods: {
-        async fetchInventory() {
+        /**
+         * Fetches the inventory data from the backend API and updates the local inventoryData.
+         */
+         async fetchInventory() {
             try {
                 const response = await axios.get('/api/inventory/ingredients');
                 this.inventoryData = response.data;
@@ -89,6 +92,11 @@ export default {
                 console.error('Error fetching ingredients:', error);
             }
         },
+
+        /**
+         * Sends the updated inventory item to the backend API for persistence.
+         * @param {Object} invItem - The inventory item to be updated.
+         */
         async updateInventory(invItem) {
             try {
                 const response = await axios.post('/api/inventory/ingredients', { ingredients: [invItem] });
@@ -97,12 +105,16 @@ export default {
                 console.error('Error updating ingredients:', error);
             }
         },
+
+        /**
+         * Toggles the selected state of an inventory item for editing or saving.
+         * @param {number} index - The index of the inventory item to be edited.
+         */
         editIngredient(index) {
             if (this.inventoryData[index].selected) {
                 this.inventoryData[index].selected = false
                 this.anySelected = false
                 this.updateInventory(this.inventoryData[index])
-                //TODO: API call to send to backend
             } else{
                 if(this.anySelected){
                     alert("Please save your changes first")
@@ -112,6 +124,10 @@ export default {
                 }
             }
         },
+
+        /**
+         * Adds a new inventory item to the list with a unique ID.
+         */
         addIngredient() {
             if(this.anySelected){
                 alert("Please save your changes before adding a new item")
@@ -121,6 +137,10 @@ export default {
                 this.anySelected = true
             }
         },
+
+        /**
+         * Orders the ingredients from the backend API.
+         */
         orderIngredients() {
             console.log("Order ingredients function called");
             const response = axios.get('api/inventory/order-ingredients');

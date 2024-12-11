@@ -104,7 +104,10 @@ export default {
         this.fetchEmptyIngredientList();
     },
     methods: {
-        async fetchEmptyIngredientList() {
+        /**
+         * Fetches a list of available ingredients from the backend API to populate the empty ingredient list.
+         */
+         async fetchEmptyIngredientList() {
             try {
                 const response = await axios.get('/api/inventory/ingredients');
                 this.emptyIngredientList = response.data.map(ingr => {
@@ -115,6 +118,10 @@ export default {
                 console.error('Error fetching ingredients:', error);
             }
         },
+
+        /**
+         * Fetches the menu data from the backend API and updates the local menuData.
+         */
         async fetchMenu() {
             try {
                 const response = await axios.get('/api/inventory/menu-items');
@@ -126,25 +133,23 @@ export default {
                 console.error('Error fetching menuData:', error);
             }
         },
+
+        /**
+         * Sends the updated menu data to the backend API to persist changes.
+         */
         async updateMenu() {
             try {
-                /*console.log(this.menuData);
-
-                console.log(menuItem.Name);
-                const ingredientsMenuItems = {
-                    [menuItem.id]: []
-                };
-                const response = await axios.post('/api/inventory/menu-items', { menuItems: [menuItem], ingredientsMenuItems });*/
-                //console.log({ menuItems: [menuItem], ingredientsMenuItems });
-
-                // console.log("fdsjalkfjdsalk:", this.menuData);
-
                 const response = await axios.post('/api/inventory/menu-items', this.menuData);
                 console.log(response.data.message);
             } catch (error) {
                 console.error('Error updating ingredients:', error);
             }
         },
+
+        /**
+         * Toggles the selection state of a menu item for editing or saving.
+         * @param {number} index - The index of the menu item to be edited.
+         */
         editMenuItem(index) {
             if (this.menuData[index].selected) {
                 if (this.showIngredientPanel) {
@@ -152,7 +157,6 @@ export default {
                 } else {
                     this.menuData[index].selected = false
                     this.anyItemSelected = false
-                    //TODO: remove comment when api works
                     this.updateMenu()
                 }
             } else {
@@ -164,9 +168,18 @@ export default {
                 }
             }
         },
+
+        /**
+         * Toggles the entree/side type of the menu item.
+         * @param {number} index - The index of the menu item to be updated.
+         */
         editEntreeBool(index) {
             this.menuData[index].entree = !this.menuData[index].entree;
         },
+
+        /**
+         * Adds a new menu item to the list with a unique ID.
+         */
         addMenuItem() {
             if (this.anyItemSelected) {
                 alert("Please save your changes before adding a new item")
@@ -178,14 +191,16 @@ export default {
                 });
             }
         },
+
+        /**
+         * Toggles the visibility of the ingredient panel for a specific menu item.
+         * @param {number} index - The index of the menu item for which to edit ingredients.
+         */
         editIngredients(index) {
             if (this.showIngredientPanel) {
-                //hide panel
-                this.showIngredientPanel = false;
+                this.showIngredientPanel = false; // Hide the ingredient panel
             } else {
-                //set index
-                this.ingredientIndex = index;
-                // merge base ingredient list with specific ingredient list
+                this.ingredientIndex = index; // Set the current ingredient index
                 const subsetIds = new Set(this.menuData[index].ingredients.map(item => item.id));
                 this.emptyIngredientList.forEach(item => {
                     if (!subsetIds.has(item.id)) {
@@ -193,8 +208,7 @@ export default {
                     }
                 });
                 console.log("new ingredients:", this.menuData[index].ingredients);
-                //show panel
-                this.showIngredientPanel = true;
+                this.showIngredientPanel = true; // Show the ingredient panel
             }
         },
     }

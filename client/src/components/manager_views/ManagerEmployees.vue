@@ -68,7 +68,10 @@ export default {
         this.fetchEmployees();
     },
     methods: {
-        async fetchEmployees() {
+        /**
+         * Fetches employee data from the backend API and populates the employeeData array.
+         */
+         async fetchEmployees() {
             try {
                 const response = await axios.get('/api/inventory/employees');
                 this.employeeData = response.data;
@@ -77,40 +80,60 @@ export default {
                 console.error('Error fetching employeeData:', error);
             }
         },
+
+        /**
+         * Sends updated employee data to the backend API.
+         * @param {Object} employee - The employee object to be updated.
+         */
         async updateEmployee(employee) {
             try {
-                const response = await axios.post('/api/inventory/employees', {employees: [employee]});
+                const response = await axios.post('/api/inventory/employees', { employees: [employee] });
                 console.log(response.data.message);
             } catch (error) {
                 console.error('Error updating employee:', error);
             }
         },
+
+        /**
+         * Toggles the edit mode for an employee. If changes are saved, sends the updated data to the backend.
+         * @param {number} index - The index of the employee in the employeeData array.
+         */
         editEmployee(index) {
             if (this.employeeData[index].selected) {
-                this.employeeData[index].selected = false
-                this.anySelected = false
-                //TODO: API call to send to backend
-                this.updateEmployee(this.employeeData[index])
-                //this.fetchEmployees()
-            }else{
-                if(this.anySelected){
-                    alert("Please save your changes first")
+                // Save changes and exit edit mode.
+                this.employeeData[index].selected = false;
+                this.anySelected = false;
+                this.updateEmployee(this.employeeData[index]); // Send updated data to the backend.
+            } else {
+                if (this.anySelected) {
+                    alert("Please save your changes first");
                 } else {
-                    this.employeeData[index].selected = true
-                    this.anySelected = true
+                    // Enter edit mode for the selected employee.
+                    this.employeeData[index].selected = true;
+                    this.anySelected = true;
                 }
             }
         },
+
+        /**
+         * Toggles the manager status (true/false) of an employee.
+         * @param {number} index - The index of the employee in the employeeData array.
+         */
         editManagerBool(index) {
-            this.employeeData[index].manager = !this.employeeData[index].manager
+            this.employeeData[index].manager = !this.employeeData[index].manager;
         },
+
+        /**
+         * Adds a new employee to the employeeData array in edit mode. Prevents adding if any employee is already being edited.
+         */
         addEmployee() {
-            if(this.anySelected){
-                alert("Please save your changes before adding a new employee")
+            if (this.anySelected) {
+                alert("Please save your changes before adding a new employee");
             } else {
+                // Calculate the new ID and add a new employee object.
                 this.maxId = Math.max(...this.employeeData.map(employee => employee.id));
                 this.employeeData.push({ id: this.maxId + 1, username: "", pin: 0, manager: false, selected: true });
-                this.anySelected = true
+                this.anySelected = true;
             }
         },
     }
