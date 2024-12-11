@@ -6,6 +6,11 @@ class SuggestionsService {
         this.pool = db.pool;
     }
 
+    /**
+     * Fetches the most popular entrees and sides from the database.
+     * @returns {Object} - An object containing two arrays: `entrees` and `sides`, each with the most popular items.
+     * @throws {Error} - Logs an error if querying the database fails.
+     */
     async getMostPopularOrders() {
         let entrees = [];
         let sides = [];
