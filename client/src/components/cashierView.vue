@@ -95,6 +95,18 @@
 import axios from 'axios';
 axios.defaults.baseURL = process.env.VUE_APP_BASE_URL;
 export default {
+  /**
+   * Component data properties.
+   *
+   * @property {boolean} isSelectingSides - Flag indicating if the user is selecting sides for a build item.
+   * @property {boolean} isSelectingEntrees - Flag indicating if the user is selecting entrees for a build item.
+   * @property {object|null} selectedBuildItem - The currently selected build item object, including its name, description, entrees, sides, type, server, and total cost.
+   * @property {array} orders - Array of completed orders, each containing information like name, description, total cost.
+   * @property {array} buildItems - Array of available build items (e.g., Bowl, Plate) with properties like name, price, and type.
+   * @property {array} entrees - Array of available entrees fetched from the API.
+   * @property {array} sides - Array of available sides fetched from the API.
+   * @property {number} server - The server ID (currently hardcoded to 2, needs feature for user input).
+   */
   data() {
     return {
     //We initialize a lot of the globals here for the time being
@@ -113,7 +125,11 @@ export default {
     };
   },
   computed: {
-    // Computed property to display the in-progress order
+    /**
+     * Computed property to display the in-progress order details.
+     *
+     * @returns {object|null} The in-progress order object or null if no build item is selected.
+     */
     inProgressOrder() {
       return this.selectedBuildItem
         ? { ...this.selectedBuildItem, description: this.selectedBuildItem.description || "" }
@@ -125,21 +141,40 @@ export default {
     this.fetchSides();
   },
   methods: {
-    //Very similar to customerView
+    /**
+     * Fetches entrees data from the API.
+     *
+     * @async
+     */
     async fetchEntrees() {
       const response = await axios.get('/api/cashier/entrees');
       this.entrees = response.data;
     },
+    /**
+     * Fetches sides data from the API.
+     *
+     * @async
+     */
     async fetchSides() {
       const response = await axios.get('/api/cashier/sides');
       this.sides = response.data;
     },
+    /**
+     * Handles selecting a build item and initializes its properties.
+     *
+     * @param {object} item - The selected build item object.
+     */
     selectBuildYourOwn(item) {
       this.isSelectingEntrees = true;
       const basePrice = Number(item.price.replace('$', ''));
       this.selectedBuildItem = { ...item, description: "", entrees: [], sides: [], type: item.type, server: this.server, totalCost: basePrice};
       this.selectedBuildItem.price = `$${this.selectedBuildItem.totalCost.toFixed(2)}`;
     },
+    /**
+     * Adds an entree to the selected build item.
+     *
+     * @param {object} entree - The selected entree object.
+     */
     addEntreeToOrder(entree) {
       const entreeLimit = this.selectedBuildItem.name === 'Bowl' ? 1 
                           : this.selectedBuildItem.name === 'Plate' ? 2 
@@ -160,6 +195,11 @@ export default {
         this.goToSidesView();
       }
     },
+    /**
+     * Adds a side to the selected build item.
+     *
+     * @param {object} side - The selected side object.
+     */
     addSideToOrder(side) {
       if (this.selectedBuildItem.sides.length < 2) {
         this.selectedBuildItem.sides.push(side.name);
@@ -172,15 +212,28 @@ export default {
         this.addToCart();
       }
     },
+    /**
+     * Adds the current build item to the order list and resets the selection.
+     */
     addToCart() {
       this.orders.push({ ...this.selectedBuildItem });
       console.log("Order added to cart:", this.selectedBuildItem);
       this.resetSelection();
     },
+    /**
+     * Removes an order from the order list.
+     *
+     * @param {number} index - The index of the order to remove.
+     */
     removeOrder(index) {
       this.orders.splice(index, 1);
       this.resetSelection();
     },
+    /**
+     * Places the current order and sends it to the API.
+     *
+     * @async
+     */
     async placeOrder() {
 
       for (const order of this.orders) {
@@ -234,24 +287,38 @@ export default {
       alert("Order Placed Successfully")
       this.resetOrder(); // Reset order summary if needed
   },
-
+    /**
+     * Resets the order list and selection.
+     */
     resetOrder() {
       this.orders = [];
       this.resetSelection();
     },
+    /**
+     * Resets the selected build item and flags.
+     */
     resetSelection() {
       this.selectedBuildItem = null;
       this.isSelectingEntrees = false;
       this.isSelectingSides = false;
     },
+    /**
+     * Goes back to the previous selection step (entrees).
+     */
     goBack() {
       this.isSelectingEntrees = false;
       this.selectedBuildItem = null;
     },
+    /**
+     * Goes to the side selection step.
+     */
     goToSidesView() {
       this.isSelectingEntrees = false;
       this.isSelectingSides = true;
     },
+    /**
+     * Goes back to the entree selection step.
+     */
     goBackToEntreeSelection() {
       if (this.selectedBuildItem) {
         this.selectedBuildItem.sides = [];

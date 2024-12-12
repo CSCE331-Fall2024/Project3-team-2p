@@ -189,6 +189,12 @@ export default {
     }
   },
   methods: {
+    /**
+     * Fetches entrees data from the API.
+     *
+     * @async
+     * @returns {Promise<void>}
+     */
     async fetchEntrees() {
       try {
         const response = await axios.get('/api/customers/entrees');
@@ -198,6 +204,12 @@ export default {
         console.error('Error fetching entrees:', error);
       }
     },
+    /**
+     * Fetches sides data from the API.
+     *
+     * @async
+     * @returns {Promise<void>}
+     */
     async fetchSides() {
       try {
         const response = await axios.get('/api/customers/sides');
@@ -206,7 +218,12 @@ export default {
         console.error('Error fetching sides:', error);
       }
     },
-
+    /**
+     * Fetches popular suggested orders from the API.
+     *
+     * @async
+     * @returns {Promise<void>}
+     */
     async fetchPopularSuggestions() {
       try {
         const response = await axios.get('/api/suggestions/popular');
@@ -250,21 +267,44 @@ export default {
         console.error('Error fetching popular suggestions:', error);
       }
     },
-
+    /**
+     * Adds a suggested order to the order list.
+     *
+     * @param {Object} order - The suggested order object.
+     * @returns {void}
+     */
     addOrder(order) {
       this.orders.push(order);
     },
+    /**
+     * Removes an order from the order list.
+     *
+     * @param {number} index - The index of the order to remove.
+     * @returns {void}
+     */
     removeOrder(index) {
       this.orders.splice(index, 1);
       this.selectedBuildItem = null;
       this.isSelectingEntrees = false;
       this.isSelectingSides = false;
     },
+    /**
+     * Selects a build-your-own item and initializes the selection process.
+     *
+     * @param {Object} item - The selected build item.
+     * @returns {void}
+     */
     selectBuildYourOwn(item) {
       this.isSelectingEntrees = true;
       this.selectedBuildItem = { ...item, description: "", entrees: [], sides: [] };
       this.orderType = item.type;
     },
+    /**
+     * Adds an entree to the selected build item.
+     *
+     * @param {Object} entree - The selected entree.
+     * @returns {void}
+     */
     addEntreeToOrder(entree) {
       const entreeLimit = this.selectedBuildItem.name === 'Bowl' ? 1 
                         : this.selectedBuildItem.name === 'Plate' ? 2 
@@ -290,6 +330,12 @@ export default {
         this.goToSidesView();
       }
     },
+    /**
+     * Adds a side to the selected build item.
+     *
+     * @param {Object} side - The selected side.
+     * @returns {void}
+     */
     addSideToOrder(side) {
       if(this.selectedBuildItem.sides.length < this.maxSides){
         this.selectedBuildItem.sides.push(side.name);
@@ -305,14 +351,29 @@ export default {
         this.isSelectingSides = false;
       }
     },
+    /**
+     * Adds the current build item to the order list and resets the selection.
+     *
+     * @returns {void}
+     */
     addToCart() {
       this.resetSelection();
     },
+    /**
+     * Resets the selected build item and selection stage.
+     *
+     * @returns {void}
+     */
     resetSelection() {
       this.selectedBuildItem = null;
       this.isSelectingEntrees = false;
       this.isSelectingSides = false;
     },
+    /**
+     * Goes back to the previous selection stage.
+     *
+     * @returns {void}
+     */
     goBack() {
       if (this.selectedBuildItem) {
         this.selectedBuildItem.entrees = [];
@@ -326,10 +387,20 @@ export default {
       this.isSelectingSides = false;
       this.selectedBuildItem = null;
     },
+     /**
+     * Moves to the side selection stage.
+     *
+     * @returns {void}
+     */
     goToSidesView() {
       this.isSelectingEntrees = false;
       this.isSelectingSides = true;
     },
+    /**
+     * Moves back to the entree selection stage.
+     *
+     * @returns {void}
+     */
     goBackToEntreeSelection() {
       if (this.selectedBuildItem) {
         this.selectedBuildItem.sides = [];
