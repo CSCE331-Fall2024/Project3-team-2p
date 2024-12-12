@@ -72,15 +72,21 @@ export default {
         this.fetchWeather();
     },
     methods: {
-        async fetchWeather() {
+        /**
+         * Fetches the user's weather data using their IP location.
+         * Makes an API call to fetch the user's city and coordinates,
+         * then queries OpenWeather for the current weather conditions.
+         */
+         async fetchWeather() {
             try {
+                // Fetch user location based on IP
                 const locationResponse = await axios.get('https://ipapi.co/json/');
                 const { latitude, longitude, city, region } = locationResponse.data;
                 this.city = city;
                 this.region = region;
 
+                // Fetch weather using OpenWeather API
                 const apiKey = process.env.VUE_APP_OPENWEATHER_API_KEY;
-                //console.log('api key: ', apiKey);
                 const weatherResponse = await axios.get(
                     `https://api.openweathermap.org/data/2.5/weather`,
                     {
@@ -88,27 +94,33 @@ export default {
                             lat: latitude,
                             lon: longitude,
                             appid: apiKey,
-                            units: 'imperial',
+                            units: 'imperial', // Use Fahrenheit units
                         },
                     }
                 );
 
-                this.weather = weatherResponse.data;
+                this.weather = weatherResponse.data; // Save weather data to state
             } catch (error) {
                 console.error('Error fetching weather data:', error);
             }
         },
+
+        /**
+         * Toggles the visibility of different dashboard views (graph, X report, Z report).
+         * @param {boolean} g - Whether the graph view is selected.
+         * @param {boolean} x - Whether the X report view is selected.
+         */
         assertView(g, x) {
-            if (g) {                //graph button clicked
+            if (g) { // Graph button clicked
                 this.graphHidden = false;
                 this.xrepHidden = true;
                 this.zrepHidden = true;
-            } else {                //x or z report button clicked
-                if (x) {
+            } else { // X or Z report button clicked
+                if (x) { // X Report
                     this.graphHidden = true;
                     this.xrepHidden = false;
                     this.zrepHidden = true;
-                } else {
+                } else { // Z Report
                     this.graphHidden = true;
                     this.xrepHidden = true;
                     this.zrepHidden = false;

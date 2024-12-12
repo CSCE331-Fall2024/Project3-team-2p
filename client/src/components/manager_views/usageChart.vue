@@ -47,6 +47,9 @@ export default {
             ],
         });
 
+        /**
+         * Sets the default start and end dates for the ingredient usage chart.
+         */
         const setDefaultDates = () => {
             const today = new Date();
             const sevenDaysAgo = new Date();
@@ -56,6 +59,10 @@ export default {
             endDate.value = today.toISOString().split('T')[0];
         };
 
+        /**
+         * Fetches the list of ingredients from the API and sets the selected ingredient to the first item.
+         * Calls fetchUsageData to load usage data for the selected ingredient.
+         */
         const fetchIngredients = async () => {
             try {
                 const response = await axios.get('/api/inventory/ingredients');
@@ -67,6 +74,10 @@ export default {
             }
         };
 
+        /**
+         * Fetches the usage data for the selected ingredient over the specified date range.
+         * Updates the chart data and calls updateChart to render the updated chart.
+         */
         const fetchUsageData = async () => {
             if (!selectedIngredient.value) return;
 
@@ -90,6 +101,9 @@ export default {
             }
         };
 
+        /**
+         * Updates the chart by destroying the current chart instance and creating a new one with the updated data.
+         */
         const updateChart = () => {
             if (chartRef.value) {
                 chartRef.value.destroy();

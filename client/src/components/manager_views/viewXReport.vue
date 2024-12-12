@@ -39,6 +39,11 @@ export default {
         //         salesData: [],
         //     };
         // },
+
+        /**
+         * Fetches sales data for the current date from the backend API.
+         * Sets the date to today's date and retrieves the sales data for that date.
+         */
         const fetchSales = async () => {
             try {
                 const today = new Date();
