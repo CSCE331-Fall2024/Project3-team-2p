@@ -60,6 +60,7 @@ export default {
                 { id: 4, username: "Smiles", pin: 4444, manager: false, selected: false },
             ],*/
             employeeData: [],
+            anySelected: false,
             maxId: 0,
         };
     },
@@ -87,19 +88,30 @@ export default {
         editEmployee(index) {
             if (this.employeeData[index].selected) {
                 this.employeeData[index].selected = false
+                this.anySelected = false
                 //TODO: API call to send to backend
                 this.updateEmployee(this.employeeData[index])
                 //this.fetchEmployees()
             }else{
-                this.employeeData[index].selected = true
+                if(this.anySelected){
+                    alert("Please save your changes first")
+                } else {
+                    this.employeeData[index].selected = true
+                    this.anySelected = true
+                }
             }
         },
         editManagerBool(index) {
             this.employeeData[index].manager = !this.employeeData[index].manager
         },
         addEmployee() {
-            this.maxId = Math.max(...this.employeeData.map(employee => employee.id));
-            this.employeeData.push({ id: this.maxId + 1, username: "", pin: 0, manager: false, selected: true });
+            if(this.anySelected){
+                alert("Please save your changes before adding a new employee")
+            } else {
+                this.maxId = Math.max(...this.employeeData.map(employee => employee.id));
+                this.employeeData.push({ id: this.maxId + 1, username: "", pin: 0, manager: false, selected: true });
+                this.anySelected = true
+            }
         },
     }
 };

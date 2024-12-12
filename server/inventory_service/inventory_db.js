@@ -185,6 +185,25 @@ class InventoryService {
     }
 
     /**
+     * Orders ingredients by setting stock to the threshold for each ingredient.
+     */
+    async orderIngredients() {
+        const query = `
+            UPDATE ingredients
+            SET stock = threshold;
+        `;
+
+        try {
+            console.log("Ordering ingredients");
+            await this.pool.query(query);
+            console.log("Ingredients ordered successfully.");
+        } catch (error) {
+            console.error("Error ordering ingredients:", error);
+            throw error;
+        }
+    }
+
+    /**
      * Updates the menu items table with new or edited items
      * @param {Array} menuItems - Array of menu item objects
      */

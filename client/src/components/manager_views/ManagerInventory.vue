@@ -72,6 +72,7 @@ export default {
             ],*/
             inventoryData: [],
             maxId: 0,
+            anySelected: false,
         };
     }, 
     created() {
@@ -99,20 +100,31 @@ export default {
         editIngredient(index) {
             if (this.inventoryData[index].selected) {
                 this.inventoryData[index].selected = false
+                this.anySelected = false
                 this.updateInventory(this.inventoryData[index])
                 //TODO: API call to send to backend
             } else{
-                this.inventoryData[index].selected = true
+                if(this.anySelected){
+                    alert("Please save your changes first")
+                } else {
+                    this.inventoryData[index].selected = true
+                    this.anySelected = true
+                }
             }
         },
         addIngredient() {
-            this.maxId += 1;
-            this.inventoryData.push({id: this.maxId, name: "", stock: 0, threshold: 0, change: 0, selected: true });
+            if(this.anySelected){
+                alert("Please save your changes before adding a new item")
+            } else {
+                this.maxId += 1;
+                this.inventoryData.push({id: this.maxId, name: "", stock: 0, threshold: 0, change: 0, selected: true });
+                this.anySelected = true
+            }
         },
         orderIngredients() {
             console.log("Order ingredients function called");
-            //TODO Matthew: go through and record how many of each ingredient will be ordered.
-            //TODO: API call to update inventory 
+            const response = axios.get('api/inventory/order-ingredients');
+            console.log(response);
         }
     }
 };
