@@ -4,9 +4,12 @@
 
 ### Cashier View
 
-1. **'cashierView.vue'**
+1. **`cashierView.vue`**
    Description: this file contains all of the veiws and windows for the cashier View. It allows for a quick and seamless way to complete orders and update the database via Axios API
-2. **'customerView.vue'**
+
+### Customer View
+
+1. **`customerView.vue`**
    Description: this file contains all of the veiws and windows for the customer View. This view allows for a better user experience than the cashier view, as well as cater to a number of different accessibility features for special groups.
 
 
